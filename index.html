@@ -803,7 +803,7 @@ function renderGarden(){
     el.appendChild(img);
     const n=recent.length;const spread=Math.min(w-40,n*30);const sx=(w-spread)/2;
     const x=n===1?w/2-17:sx+(i/(Math.max(n-1,1)))*spread;const row=Math.floor(i/9);
-    el.style.left=Math.round(x)+'px';el.style.bottom=(2+row*40)+'px';area.appendChild(el);
+    el.style.left=Math.round(x)+'px';el.style.bottom=(8+row*40)+'px';area.appendChild(el);
   });
 }
 
