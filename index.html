@@ -846,7 +846,7 @@ function renderGarden(){
     const fDef=FLOWERS.find(fd=>fd.id===f.id)||FLOWERS[0];
     const img=document.createElement('img');
     img.src=fDef?fDef.src:'';
-    img.style.cssText='width:34px;height:34px;object-fit:contain;display:block;';
+    img.style.cssText='width:52px;height:52px;object-fit:contain;display:block;';
     img.alt=fDef?fDef[state.lang]||fDef.fr:'';
     el.appendChild(img);
     const n=recent.length;const spread=Math.min(w-40,n*30);const sx=(w-spread)/2;
@@ -1043,7 +1043,7 @@ function spawnPhoto(src,sz,opacity,xPct,yPct,xPxDirect,yPxDirect){
   el.addEventListener('mousedown',e=>dStart(e,el,wrap));
   el.addEventListener('touchstart',e=>dStartT(e,el,wrap),{passive:false});
   el.addEventListener('dblclick',()=>el.remove());
-  wrap.appendChild(el);
+  wrap.appendChild(el);updateScrapHeight();
 }
 function restorePhoto(p){
   const wrap=document.getElementById('scrap-wrap');if(!wrap)return;
@@ -1083,7 +1083,7 @@ function spawnSticker(sid,emoji,src,xPct,yPct,sz,xPxDirect,yPxDirect){
   el.addEventListener('mousedown',e=>dStart(e,el,wrap));
   el.addEventListener('touchstart',e=>dStartT(e,el,wrap),{passive:false});
   el.addEventListener('dblclick',()=>el.remove());
-  wrap.appendChild(el);
+  wrap.appendChild(el);updateScrapHeight();
 }
 function restoreSticker(s){
   const def=findStickerDef(s.sid)||{id:s.sid,emoji:s.emoji||'⭐',src:null};
@@ -1116,7 +1116,7 @@ function mkRh(el,img,type){
 function doRz(e){if(!rz)return;const er=rz.el.getBoundingClientRect();applyRz(Math.max(20,Math.min(220,rzS*(Math.hypot(e.clientX-er.left,e.clientY-er.top)/rzD))));}
 function doRzT(e){if(!rz)return;e.preventDefault();const t=e.touches[0];const er=rz.el.getBoundingClientRect();applyRz(Math.max(20,Math.min(220,rzS*(Math.hypot(t.clientX-er.left,t.clientY-er.top)/rzD))));}
 function applyRz(sz){if(!rz)return;if(rz.type==='photo'&&rz.img){rz.img.style.maxWidth=sz+'px';rz.img.style.maxHeight=sz+'px';}else if(rz.type==='sticker'){rz.el.style.fontSize=sz+'px';const img=rz.el.querySelector('img');if(img){img.style.width=sz+'px';img.style.height=sz+'px';}}}
-function endRz(){rz=null;document.removeEventListener('mousemove',doRz);document.removeEventListener('mouseup',endRz);document.removeEventListener('touchmove',doRzT);document.removeEventListener('touchend',endRz);}
+function endRz(){rz=null;document.removeEventListener('mousemove',doRz);document.removeEventListener('mouseup',endRz);document.removeEventListener('touchmove',doRzT);document.removeEventListener('touchend',endRz);updateScrapHeight();}
 
 // ═══════════════════════════════════════════════════════
 // DRAG
@@ -1134,7 +1134,19 @@ function dMove(e){
   drag.style.left=Math.max(0,Math.min(pr.width-20,e.clientX-pr.left-dox))+'px';
   drag.style.top=Math.max(0,Math.min(mh-20,e.clientY-pr.top-doy))+'px';
 }
-function dEnd(){drag=null;document.removeEventListener('mousemove',dMove);document.removeEventListener('mouseup',dEnd);}
+// Grandir le scrap-wrap pour contenir tous les stickers/photos → scroll correct
+function updateScrapHeight(){
+  const wrap=document.getElementById('scrap-wrap');if(!wrap)return;
+  let maxBottom=220;
+  wrap.querySelectorAll('.free-item').forEach(el=>{
+    const top=parseFloat(el.style.top)||0;
+    const h=el.offsetHeight||80;
+    maxBottom=Math.max(maxBottom,top+h+60);
+  });
+  wrap.style.minHeight=maxBottom+'px';
+}
+
+function dEnd(){drag=null;document.removeEventListener('mousemove',dMove);document.removeEventListener('mouseup',dEnd);updateScrapHeight();}
 function dStartT(e,el,wrap){
   if(e.target.classList.contains('i-del')||e.target.classList.contains('rh'))return;
   if(e.target.tagName==='INPUT'||e.target.tagName==='BUTTON')return;
@@ -1148,7 +1160,7 @@ function dMoveT(e){
   drag.style.left=Math.max(0,Math.min(pr.width-20,t.clientX-pr.left-dox))+'px';
   drag.style.top=Math.max(0,Math.min(mh-20,t.clientY-pr.top-doy))+'px';
 }
-function dEndT(){drag=null;document.removeEventListener('touchmove',dMoveT);document.removeEventListener('touchend',dEndT);}
+function dEndT(){drag=null;document.removeEventListener('touchmove',dMoveT);document.removeEventListener('touchend',dEndT);updateScrapHeight();}
 
 // ═══════════════════════════════════════════════════════
 // SAVE
