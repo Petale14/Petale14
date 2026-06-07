@@ -127,7 +127,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* SCRAPBOOK */
 .scrap-wrap{position:relative;min-height:220px;padding-bottom:2rem;}
-.scrap-ta{width:100%;border:none;outline:none;background:transparent;line-height:2;resize:none;min-height:200px;caret-color:var(--violet);padding:0;position:relative;z-index:2;}
+.scrap-ta{width:100%;border:none;outline:none;background:transparent;line-height:2;resize:none;min-height:80px;overflow:hidden;caret-color:var(--violet);padding:0;position:relative;z-index:2;}
 .scrap-ta::placeholder{color:var(--text3);font-style:italic;}
 /* Canvas unifié — mêmes dimensions dans édition, preview et Mon journal */
 .petale-canvas{position:relative;min-height:350px;padding-bottom:3rem;}
@@ -964,6 +964,11 @@ function renderIntime(j,ek){
   renderTypoPicker('i',j.acc);renderColorPicker('i',j.acc);
   const ta=document.getElementById('i-ta');ta.value=saved?.text||'';ta.placeholder=j.mainPrompt;
   ta.style.fontFamily=ty.f;ta.style.fontSize=ty.sz;ta.style.color=state.color;ta.style.webkitTextFillColor=state.color;
+  // Auto-resize : la textarea grandit avec le texte → plus de scroll interne
+  const autoResize=()=>{ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';updateScrapHeight();};
+  ta.addEventListener('input',autoResize);
+  // Initialiser la hauteur avec le contenu existant
+  requestAnimationFrame(autoResize);
   document.querySelectorAll('#scrap-wrap .free-item').forEach(el=>el.remove());
   arrMode=false;updateArrUI();
   if(saved?.photos)saved.photos.forEach(p=>restorePhoto(p));
@@ -1137,13 +1142,24 @@ function dMove(e){
 // Grandir le scrap-wrap pour contenir tous les stickers/photos → scroll correct
 function updateScrapHeight(){
   const wrap=document.getElementById('scrap-wrap');if(!wrap)return;
-  let maxBottom=220;
+  let maxBottom=0;
   wrap.querySelectorAll('.free-item').forEach(el=>{
     const top=parseFloat(el.style.top)||0;
-    const h=el.offsetHeight||80;
+    const imgEl=el.querySelector('img');
+    const sz=parseInt(el.style.fontSize)||80;
+    const h=imgEl?(parseInt(imgEl.style.maxHeight)||parseInt(imgEl.style.height)||sz+20):sz+20;
     maxBottom=Math.max(maxBottom,top+h+60);
   });
-  wrap.style.minHeight=maxBottom+'px';
+  if(maxBottom>0){
+    let spacer=wrap.querySelector('.scrap-spacer');
+    if(!spacer){
+      spacer=document.createElement('div');
+      spacer.className='scrap-spacer';
+      spacer.style.cssText='display:block;width:1px;pointer-events:none;';
+      wrap.appendChild(spacer);
+    }
+    spacer.style.height=maxBottom+'px';
+  }
 }
 
 function dEnd(){drag=null;document.removeEventListener('mousemove',dMove);document.removeEventListener('mouseup',dEnd);updateScrapHeight();}
