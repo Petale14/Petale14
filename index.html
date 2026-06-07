@@ -292,6 +292,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .todo-mic.rec{animation:pulseMic 1.5s infinite;}
 .todo-empty{text-align:center;padding:2.5rem 1rem;font-size:15px;color:var(--text3);font-style:italic;}
 
+.toast{position:fixed;bottom:calc(var(--nav-h) + 12px);left:50%;transform:translateX(-50%);background:#2C2010;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+
 /* PRINT STYLES */
 @media print {
   .bottom-nav,.j-hdr,.toolbar,.mic-hero-wrap,.save-btn,.print-t,.rec-bar{display:none!important;}
@@ -508,6 +511,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 </div><!-- /app -->
+
+<div class="toast" id="save-toast">✅ Enregistré !</div>
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav" id="bottom-nav">
@@ -1004,13 +1009,17 @@ function updateArrUI(){
 // ═══════════════════════════════════════════════════════
 function handlePhotos(input){Array.from(input.files).forEach(f=>{const r=new FileReader();r.onload=e=>spawnPhoto(e.target.result,110,1,null,null);r.readAsDataURL(f);});input.value='';}
 
-function spawnPhoto(src,sz,opacity,xPct,yPct){
+function spawnPhoto(src,sz,opacity,xPct,yPct,xPxDirect,yPxDirect){
   const wrap=document.getElementById('scrap-wrap');if(!wrap)return;
-  const pw=wrap.offsetWidth||300;const ph=Math.max(wrap.scrollHeight||wrap.offsetHeight,220);
-  // Positions en POURCENTAGE pour fiabilité cross-container
-  const xp=xPct!==null&&xPct!==undefined?xPct:Math.random()*70+5;
-  const yp=yPct!==null&&yPct!==undefined?yPct:Math.random()*50+5;
-  const x=xp*pw/100;const y=yp*ph/100;
+  let x,y;
+  if(xPxDirect!==undefined){
+    x=xPxDirect;y=yPxDirect;
+  } else {
+    const pw=wrap.offsetWidth||300;const ph=Math.max(wrap.scrollHeight||wrap.offsetHeight,220);
+    const xp=xPct!==null&&xPct!==undefined?xPct:Math.random()*70+5;
+    const yp=yPct!==null&&yPct!==undefined?yPct:Math.random()*50+5;
+    x=xp*pw/100;y=yp*ph/100;
+  }
   const s=sz||110;const op=opacity!==undefined?opacity:1;
   const el=document.createElement('div');el.className='free-item is-photo';el.style.cssText=`left:${x}px;top:${y}px;`;
   const img=document.createElement('img');img.src=src;
@@ -1037,21 +1046,28 @@ function spawnPhoto(src,sz,opacity,xPct,yPct){
   wrap.appendChild(el);
 }
 function restorePhoto(p){
-  // Compatibilité backward: si xPct existe utiliser %, sinon convertir x/y absolus
-  const xp=p.xPct!==undefined?p.xPct:null;
-  const yp=p.yPct!==undefined?p.yPct:null;
-  spawnPhoto(p.src,p.w,p.opacity,xp,yp);
+  const wrap=document.getElementById('scrap-wrap');if(!wrap)return;
+  if(p.xPx!==undefined){
+    spawnPhoto(p.src,p.w,p.opacity,null,null,p.xPx,p.yPx);
+  } else {
+    spawnPhoto(p.src,p.w,p.opacity,p.xPct,p.yPct);
+  }
 }
 
 // ═══════════════════════════════════════════════════════
 // SCRAPBOOK — STICKERS
 // ═══════════════════════════════════════════════════════
-function spawnSticker(sid,emoji,src,xPct,yPct,sz){
+function spawnSticker(sid,emoji,src,xPct,yPct,sz,xPxDirect,yPxDirect){
   const wrap=document.getElementById('scrap-wrap');if(!wrap)return;
-  const pw=wrap.offsetWidth||300;const ph=Math.max(wrap.scrollHeight||wrap.offsetHeight,220);
-  const xp=xPct!==null&&xPct!==undefined?xPct:Math.random()*70+5;
-  const yp=yPct!==null&&yPct!==undefined?yPct:Math.random()*50+5;
-  const x=xp*pw/100;const y=yp*ph/100;
+  let x,y;
+  if(xPxDirect!==undefined){
+    x=xPxDirect;y=yPxDirect;
+  } else {
+    const pw=wrap.offsetWidth||300;const ph=Math.max(wrap.scrollHeight||wrap.offsetHeight,220);
+    const xp=xPct!==null&&xPct!==undefined?xPct:Math.random()*70+5;
+    const yp=yPct!==null&&yPct!==undefined?yPct:Math.random()*50+5;
+    x=xp*pw/100;y=yp*ph/100;
+  }
   const fsize=sz||28;
   const el=document.createElement('div');el.className='free-item is-sticker';
   el.dataset.sid=sid||'';el.dataset.emoji=emoji||'⭐';
@@ -1071,7 +1087,11 @@ function spawnSticker(sid,emoji,src,xPct,yPct,sz){
 }
 function restoreSticker(s){
   const def=findStickerDef(s.sid)||{id:s.sid,emoji:s.emoji||'⭐',src:null};
-  spawnSticker(def.id,def.emoji,def.src,s.xPct!==undefined?s.xPct:null,s.yPct!==undefined?s.yPct:null,s.sz);
+  if(s.xPx!==undefined){
+    spawnSticker(def.id,def.emoji,def.src,null,null,s.sz,s.xPx,s.yPx);
+  } else {
+    spawnSticker(def.id,def.emoji,def.src,s.xPct!==undefined?s.xPct:null,s.yPct!==undefined?s.yPct:null,s.sz);
+  }
 }
 
 function mkDel(el){
@@ -1155,7 +1175,7 @@ function saveJ(jid){
     const deep=[0,1,2].map(i=>document.getElementById(`f-d${i}`)?.value.trim()||'');
     state.entries[ek]={text:slots.filter(s=>s).join(' | '),slots,deep};
   }
-  save();goHome();
+  save();showToast();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1542,6 +1562,16 @@ function deleteTodo(i){
   if(!state.todos)return;
   state.todos.splice(i,1);
   save();renderTodo();
+}
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+function showToast(msg){
+  const t=document.getElementById('save-toast');if(!t)return;
+  const tr=T();
+  t.textContent=msg||(tr.lang==='en'?'✅ Saved!':tr.lang==='es'?'✅ Guardado!':'✅ Enregistré !');
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);
 }
 
 // ═══════════════════════════════════════════════════════
