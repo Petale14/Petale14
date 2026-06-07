@@ -569,6 +569,18 @@ const STICKER_DEFS = {
   ]
 };
 
+
+// Helper positions stickers/photos dans les vues lecture
+function calcItemPos(item, pageOffsetW, leftPad){
+  const lp=leftPad||48;const rp=16;
+  const viewContentW=Math.max((pageOffsetW||380)-lp-rp,200);
+  const refContentW=item.refW||viewContentW;
+  const scale=viewContentW/refContentW;
+  const xPx=item.xPx!==undefined?item.xPx:(item.xPct||0)*refContentW/100;
+  const yPx=item.yPx!==undefined?item.yPx:(item.yPct||0)*(item.refH||400)/100;
+  return {x:lp+xPx*scale, y:yPx*scale, scale};
+}
+
 function findStickerDef(id){
   return [...STICKER_DEFS.free,...STICKER_DEFS.premium].find(s=>s.id===id);
 }
@@ -1124,19 +1136,21 @@ function saveJ(jid){
   if(jid==='intime'){
     const wrap=document.getElementById('scrap-wrap');
     const pw=wrap.offsetWidth||300;const ph=Math.max(wrap.scrollHeight||wrap.offsetHeight,220);
+    // refW = largeur du contenu (sans paddings de j-inner : 48px gauche + 16px droite)
+    const refContentW=Math.max(pw-64,200);
     const photos=[];
     document.querySelectorAll('#scrap-wrap .free-item.is-photo').forEach(el=>{
       const img=el.querySelector('img');const sl=el.querySelector('input[type=range]');
       if(!img?.src)return;
       const xPx=parseFloat(el.style.left)||0;
       const yPx=parseFloat(el.style.top)||0;
-      photos.push({src:img.src,xPx,yPx,xPct:xPx/pw*100,yPct:yPx/ph*100,refW:pw,refH:ph,w:parseInt(img.style.maxWidth)||110,opacity:parseFloat(sl?.value)||1});
+      photos.push({src:img.src,xPx,yPx,refW:refContentW,refH:ph,w:parseInt(img.style.maxWidth)||110,opacity:parseFloat(sl?.value)||1});
     });
     const stickers=[];
     document.querySelectorAll('#scrap-wrap .free-item.is-sticker').forEach(el=>{
       const xPx=parseFloat(el.style.left)||0;
       const yPx=parseFloat(el.style.top)||0;
-      stickers.push({sid:el.dataset.sid||'',emoji:el.dataset.emoji||'⭐',xPx,yPx,xPct:xPx/pw*100,yPct:yPx/ph*100,refW:pw,refH:ph,sz:parseInt(el.style.fontSize)||28});
+      stickers.push({sid:el.dataset.sid||'',emoji:el.dataset.emoji||'⭐',xPx,yPx,refW:refContentW,refH:ph,sz:parseInt(el.style.fontSize)||28});
     });
     state.entries[ek]={text:document.getElementById('i-ta').value.trim(),photos,stickers,typo:state.typo,color:state.color};
   } else if(jid==='gratitude'){
@@ -1287,8 +1301,8 @@ function openJournalView(jid,date,list){
   jvList=list||[{jid,date}];
   jvIdx=jvList.findIndex(e=>e.jid===jid&&e.date===date);
   if(jvIdx<0)jvIdx=0;
-  renderJournalView();
   show('journal-view');
+  renderJournalView();
 }
 
 function closeJournalView(){
@@ -1360,33 +1374,26 @@ function renderJournalView(){
     textDiv.textContent=saved.text||'';
     page.appendChild(textDiv);
 
-    // Couche photos + stickers — scale uniforme x et y
+    // Couche photos + stickers
     if((saved.photos?.length||0)+(saved.stickers?.length||0)>0){
-      requestAnimationFrame(()=>{
-        const pw=page.offsetWidth||320;
+      setTimeout(()=>{
+        const pw=page.offsetWidth||380;
         const layer=document.createElement('div');layer.className='jv-free-layer';
-
         (saved.photos||[]).forEach(p=>{
-          const refW=p.refW||pw;
-          const scale=pw/refW;
-          const x=(p.xPx!==undefined?p.xPx:(p.xPct||0)*refW/100)*scale;
-          const y=(p.yPx!==undefined?p.yPx:(p.yPct||0)*(p.refH||400)/100)*scale;
-          const w=(p.w||110)*scale;
+          const pos=calcItemPos(p,pw,48);
+          const w=(p.w||110)*pos.scale;
           const img=document.createElement('img');img.src=p.src;
-          img.className='jv-photo';img.style.cssText=`left:${x}px;top:${y}px;max-width:${w}px;max-height:${w}px;object-fit:contain;opacity:${p.opacity||1};`;
+          img.className='jv-photo';img.style.cssText=`left:${pos.x}px;top:${pos.y}px;max-width:${w}px;max-height:${w}px;object-fit:contain;opacity:${p.opacity||1};`;
           layer.appendChild(img);
         });
         (saved.stickers||[]).forEach(s=>{
           const def=findStickerDef(s.sid)||{emoji:s.emoji||'⭐',src:null};
-          const refW=s.refW||pw;
-          const scale=pw/refW;
-          const x=(s.xPx!==undefined?s.xPx:(s.xPct||0)*refW/100)*scale;
-          const y=(s.yPx!==undefined?s.yPx:(s.yPct||0)*(s.refH||400)/100)*scale;
-          const sz=Math.max(16,(s.sz||28)*scale);
+          const pos=calcItemPos(s,pw,48);
+          const sz=Math.max(16,(s.sz||28)*pos.scale);
           const sp=document.createElement('span');sp.className='jv-sticker';
           if(def.src){const i2=document.createElement('img');i2.src=def.src;i2.style.cssText=`width:${sz}px;height:${sz}px;object-fit:contain;`;sp.appendChild(i2);}
           else{sp.textContent=def.emoji;}
-          sp.style.cssText+=`left:${x}px;top:${y}px;font-size:${sz}px;`;
+          sp.style.cssText+=`left:${pos.x}px;top:${pos.y}px;font-size:${sz}px;`;
           layer.appendChild(sp);
         });
         const allItems=[...layer.querySelectorAll('.jv-photo,.jv-sticker')];
@@ -1394,7 +1401,7 @@ function renderJournalView(){
         layer.style.height=maxBottom+'px';
         page.style.minHeight=maxBottom+'px';
         page.appendChild(layer);
-      });
+      },80);
     }
   }
 }
@@ -1434,34 +1441,26 @@ function openPreview(){
   html+=`<div class="preview-free-layer" id="prev-layer"></div>`;
   page.innerHTML=html;
   // Utiliser les données SAUVEGARDÉES (xPct/yPct) pour des positions fiables
-  requestAnimationFrame(()=>{
-    const prevW=page.offsetWidth||320;
+  setTimeout(()=>{
+    const prevW=page.offsetWidth||380;
     const layer=document.getElementById('prev-layer');
     if(!layer)return;
-    // Photos — scale uniforme x ET y par rapport aux dimensions de référence
     (saved.photos||[]).forEach(p=>{
-      const refW=p.refW||prevW;
-      const scale=prevW/refW;
-      const x=(p.xPx!==undefined?p.xPx:(p.xPct||0)*refW/100)*scale;
-      const y=(p.yPx!==undefined?p.yPx:(p.yPct||0)*(p.refH||400)/100)*scale;
-      const w=(p.w||110)*scale;
+      const pos=calcItemPos(p,prevW,48);
+      const w=(p.w||110)*pos.scale;
       const pImg=document.createElement('img');pImg.src=p.src;
       pImg.className='preview-photo';
-      pImg.style.cssText=`left:${x}px;top:${y}px;max-width:${w}px;max-height:${w}px;opacity:${p.opacity||1};`;
+      pImg.style.cssText=`left:${pos.x}px;top:${pos.y}px;max-width:${w}px;max-height:${w}px;opacity:${p.opacity||1};`;
       layer.appendChild(pImg);
     });
-    // Stickers — même logique
     (saved.stickers||[]).forEach(s=>{
-      const refW=s.refW||prevW;
-      const scale=prevW/refW;
-      const x=(s.xPx!==undefined?s.xPx:(s.xPct||0)*refW/100)*scale;
-      const y=(s.yPx!==undefined?s.yPx:(s.yPct||0)*(s.refH||400)/100)*scale;
-      const sz=Math.max(16,(s.sz||28)*scale);
+      const pos=calcItemPos(s,prevW,48);
+      const sz=Math.max(16,(s.sz||28)*pos.scale);
       const def=findStickerDef(s.sid)||{emoji:s.emoji||'⭐',src:null};
       const sp=document.createElement('span');sp.className='preview-sticker';
       if(def.src){const i2=document.createElement('img');i2.src=def.src;i2.style.cssText=`width:${sz}px;height:${sz}px;object-fit:contain;`;sp.appendChild(i2);}
       else{sp.textContent=def.emoji;}
-      sp.style.cssText+=`left:${x}px;top:${y}px;font-size:${sz}px;`;
+      sp.style.cssText+=`left:${pos.x}px;top:${pos.y}px;font-size:${sz}px;`;
       layer.appendChild(sp);
     });
     const allItems=[...layer.querySelectorAll('.preview-photo,.preview-sticker')];
@@ -1469,7 +1468,7 @@ function openPreview(){
       const maxBottom=Math.max(...allItems.map(el=>parseFloat(el.style.top||0)+120));
       layer.style.height=maxBottom+'px';
     }
-  });
+  },80);
   document.getElementById('preview-close').textContent=tr.previewClose;
   document.getElementById('preview-ov').classList.add('open');
 }
