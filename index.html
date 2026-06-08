@@ -65,7 +65,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .g-card-top{background:var(--grad);padding:0.9rem 1.1rem 0.75rem;display:flex;align-items:center;justify-content:space-between;}
 .g-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.9);}
 .g-add-btn{font-size:12px;background:rgba(255,255,255,0.25);border:none;color:#fff;padding:5px 12px;border-radius:20px;cursor:pointer;font-family:inherit;font-weight:600;}
-.garden-area{background:linear-gradient(180deg,#FFDDE1 0%,#FFB3BA 30%,#FFE4CC 87%,#C8F598 87%,#9ADF6E 100%);height:100px;position:relative;overflow:hidden;}
+.garden-area{height:100px;position:relative;overflow:hidden;transition:background 0.5s;}
 .g-flower{position:absolute;animation:popIn 0.5s ease;font-size:26px;}
 @keyframes popIn{0%{transform:scale(0) translateY(20px);opacity:0;}70%{transform:scale(1.2) translateY(-3px);}100%{transform:scale(1) translateY(0);opacity:1;}}
 .g-empty{display:flex;align-items:center;justify-content:center;height:100%;font-size:12px;color:#2D6A4F;font-style:italic;cursor:pointer;}
@@ -592,6 +592,178 @@ function findStickerDef(id){
   return [...STICKER_DEFS.free,...STICKER_DEFS.premium].find(s=>s.id===id);
 }
 
+
+// ═══════════════════════════════════════════════════════
+// CODES PREMIUM — liste confidentielle
+// ═══════════════════════════════════════════════════════
+const PREMIUM_CODES=[
+  'PETALE-WAJH-ZX6C',
+  'PETALE-PAGS-AGWT',
+  'PETALE-HU3A-3YLE',
+  'PETALE-8LCD-5V3Z',
+  'PETALE-T9NT-4V5U',
+  'PETALE-YBHK-CHDJ',
+  'PETALE-WMMG-J7WV',
+  'PETALE-FZFN-9WTX',
+  'PETALE-42HB-LJG8',
+  'PETALE-6LWN-7QJH',
+  'PETALE-TJU6-NH9S',
+  'PETALE-CBDW-3PCN',
+  'PETALE-9S95-AZXT',
+  'PETALE-JWDP-Q86J',
+  'PETALE-SF75-KWVE',
+  'PETALE-2T2S-ALA7',
+  'PETALE-64KB-68CR',
+  'PETALE-C22E-RTJ5',
+  'PETALE-PGTZ-GK9W',
+  'PETALE-QSDH-LUHH',
+  'PETALE-CWH6-5CHX',
+  'PETALE-GE7U-R33G',
+  'PETALE-DPPQ-ZX9D',
+  'PETALE-NL5H-GQPJ',
+  'PETALE-H7Q5-TB94',
+  'PETALE-975F-RGNB',
+  'PETALE-N9J3-QP89',
+  'PETALE-TYEK-8UTZ',
+  'PETALE-BUS5-F8CF',
+  'PETALE-VXHD-6HVV',
+  'PETALE-PUS7-GYHN',
+  'PETALE-XKL2-CQ99',
+  'PETALE-CGJ7-66MF',
+  'PETALE-4YV9-WA4K',
+  'PETALE-X8ED-DTJV',
+  'PETALE-YGWJ-R65C',
+  'PETALE-PJA2-WJZT',
+  'PETALE-PAC6-6T4U',
+  'PETALE-EEK6-356G',
+  'PETALE-HD26-PVE7',
+  'PETALE-5936-AZL7',
+  'PETALE-353J-3D55',
+  'PETALE-H4QK-3HAG',
+  'PETALE-L58J-WN9T',
+  'PETALE-8D9F-8JDP',
+  'PETALE-ZLVS-NUJY',
+  'PETALE-A7TZ-ZXMC',
+  'PETALE-XLL5-ZKKP',
+  'PETALE-NKEP-8X6V',
+  'PETALE-KTAK-PUWQ',
+  'PETALE-QGR6-3FCS',
+  'PETALE-WL42-XHGA',
+  'PETALE-HR5C-PWGY',
+  'PETALE-RHWA-22DP',
+  'PETALE-F8SB-H5Q3',
+  'PETALE-X9V8-6VZS',
+  'PETALE-4T6Z-RJHW',
+  'PETALE-2SWJ-CKJL',
+  'PETALE-TEHY-YCPT',
+  'PETALE-PGP6-UY52',
+  'PETALE-NAM2-58PZ',
+  'PETALE-TVHH-PALX',
+  'PETALE-NFQE-VANU',
+  'PETALE-AWEQ-BNGL',
+  'PETALE-2N24-JCAT',
+  'PETALE-9MW2-W28G',
+  'PETALE-AEEX-UGY2',
+  'PETALE-FVZD-48DA',
+  'PETALE-KX8N-YCYW',
+  'PETALE-D25V-D93M',
+  'PETALE-PMSL-54D8',
+  'PETALE-W4YP-Z8J3',
+  'PETALE-TRPZ-J54C',
+  'PETALE-6HQV-NA5F',
+  'PETALE-G3L6-YJA8',
+  'PETALE-CZR2-YWR3',
+  'PETALE-CHYK-URSP',
+  'PETALE-ZLYJ-JDGD',
+  'PETALE-T2FG-RZ9S',
+  'PETALE-KDGH-FATJ',
+  'PETALE-9TYE-5R5U',
+  'PETALE-RQFB-8R4N',
+  'PETALE-CWBE-UK9D',
+  'PETALE-2V3H-SQQ5',
+  'PETALE-9KVV-Z8GG',
+  'PETALE-XFFC-AQVK',
+  'PETALE-HYYQ-X73W',
+  'PETALE-X7PT-W74C',
+  'PETALE-FKZU-KDYY',
+  'PETALE-8SRC-BPLJ',
+  'PETALE-C84U-89XJ',
+  'PETALE-B2RW-7FUW',
+  'PETALE-RCML-X5LY',
+  'PETALE-K84T-QLL9',
+  'PETALE-NS9X-TPGM',
+  'PETALE-2W2G-T7QY',
+  'PETALE-D9VH-FTTC',
+  'PETALE-97QD-4RYS',
+  'PETALE-J49H-TN7S',
+  'PETALE-65J3-P7S4'
+];
+
+// ═══════════════════════════════════════════════════════
+// THEMES
+// ═══════════════════════════════════════════════════════
+const THEMES={
+  sunset:{id:'sunset',name:'Sunset Peps',emoji:'🌅',free:true,
+    '--coral':'#FF6B6B','--orange':'#FF8E53','--pink':'#FF6FAE','--violet':'#9B5DE5',
+    '--coral-l':'#FFF0EC','--orange-l':'#FFF4EE','--pink-l':'#FFF0F7','--violet-l':'#F5F0FF',
+    '--coral-d':'#8B2500','--orange-d':'#7B3000','--pink-d':'#7B1A50','--violet-d':'#3D1A7A',
+    '--paper':'#FFFBF8','--line':'#F0E8E0','--margin':'rgba(255,107,174,0.3)',
+    '--text':'#2C2010','--text2':'#8A6A50','--text3':'#C0A898',
+    '--bg2':'#FDF5F0','--border':'#F0DDD0',
+    '--grad':'linear-gradient(135deg,#FF6B6B,#FF8E53,#FF6FAE)',
+    garden:'linear-gradient(180deg,#FFDDE1 0%,#FFB3BA 30%,#FFE4CC 87%,#C8F598 87%,#9ADF6E 100%)'},
+  minuit:{id:'minuit',name:'Minuit',emoji:'🌙',free:false,
+    '--coral':'#9B7FFF','--orange':'#7B5FDF','--pink':'#C8A8FF','--violet':'#6B4FBF',
+    '--coral-l':'#2D1B69','--orange-l':'#231550','--pink-l':'#2A1B5A','--violet-l':'#1A1035',
+    '--coral-d':'#C8A8FF','--orange-d':'#E0C8FF','--pink-d':'#D8B8FF','--violet-d':'#F0E8FF',
+    '--paper':'#1A1035','--line':'#2D1B69','--margin':'rgba(155,127,255,0.15)',
+    '--text':'#E8E0FF','--text2':'#9B8FCC','--text3':'#5A4A8A',
+    '--bg2':'#120D2A','--border':'#2D1B69',
+    '--grad':'linear-gradient(135deg,#3A1A7A,#6B3FBF,#9B5DE5)',
+    garden:'linear-gradient(180deg,#1A1035 0%,#2D1B69 50%,#231550 87%,#1A2040 87%,#0D1428 100%)'},
+  prairie:{id:'prairie',name:'Prairie',emoji:'🌿',free:false,
+    '--coral':'#2D6A4F','--orange':'#52B788','--pink':'#74C69D','--violet':'#1B4332',
+    '--coral-l':'#D8F3DC','--orange-l':'#EAF7EE','--pink-l':'#F0FFF4','--violet-l':'#E8F8EC',
+    '--coral-d':'#1B4332','--orange-d':'#0D2B1F','--pink-d':'#0A2018','--violet-d':'#061510',
+    '--paper':'#F8FFF9','--line':'#D8F3DC','--margin':'rgba(82,183,136,0.25)',
+    '--text':'#1B4332','--text2':'#2D6A4F','--text3':'#74C69D',
+    '--bg2':'#F0FFF4','--border':'#B7E4C7',
+    '--grad':'linear-gradient(135deg,#1B4332,#2D6A4F,#52B788)',
+    garden:'linear-gradient(180deg,#E8F5E0 0%,#C8E8A8 30%,#D8F3DC 87%,#52B788 87%,#2D6A4F 100%)'},
+  rose:{id:'rose',name:'Rose Poudré',emoji:'🌸',free:false,
+    '--coral':'#C9527A','--orange':'#E8A0B4','--pink':'#F0C0D0','--violet':'#8B3A5A',
+    '--coral-l':'#FFE4ED','--orange-l':'#FFF0F5','--pink-l':'#FFF5F8','--violet-l':'#FFEAF2',
+    '--coral-d':'#5C1A35','--orange-d':'#4A1228','--pink-d':'#3A0D20','--violet-d':'#2A0818',
+    '--paper':'#FFF5F8','--line':'#FFE4ED','--margin':'rgba(201,82,122,0.15)',
+    '--text':'#5C1A35','--text2':'#8B3A5A','--text3':'#C9A0B0',
+    '--bg2':'#FFF0F5','--border':'#F5C0D5',
+    '--grad':'linear-gradient(135deg,#8B3A5A,#C9527A,#E8A0B4)',
+    garden:'linear-gradient(180deg,#FFF0F5 0%,#FFD6E8 30%,#FFE4ED 87%,#F5C0D5 87%,#E8A0B4 100%)'},
+  terre:{id:'terre',name:'Terre',emoji:'🤎',free:false,
+    '--coral':'#C27A52','--orange':'#B07850','--pink':'#C4AD96','--violet':'#6B4C3B',
+    '--coral-l':'#EDE0D0','--orange-l':'#F0E8D8','--pink-l':'#F5EFE0','--violet-l':'#EAE0D0',
+    '--coral-d':'#4A3228','--orange-d':'#3A2818','--pink-d':'#3A2A20','--violet-d':'#2A1810',
+    '--paper':'#F5EFE0','--line':'#E8DCC8','--margin':'rgba(180,120,80,0.2)',
+    '--text':'#4A3228','--text2':'#6B4C3B','--text3':'#C4AD96',
+    '--bg2':'#EDE0D0','--border':'#D4C0A8',
+    '--grad':'linear-gradient(135deg,#6B4C3B,#B07850,#C27A52)',
+    garden:'linear-gradient(180deg,#F5EFE0 0%,#E8DCC8 30%,#EDE0D0 87%,#C4AD96 87%,#B07850 100%)'}
+};
+
+function applyTheme(id){
+  const t=THEMES[id]||THEMES.sunset;
+  const r=document.documentElement;
+  const keys=['--coral','--orange','--pink','--violet',
+    '--coral-l','--orange-l','--pink-l','--violet-l',
+    '--coral-d','--orange-d','--pink-d','--violet-d',
+    '--paper','--line','--margin','--text','--text2','--text3',
+    '--bg2','--border','--grad'];
+  keys.forEach(k=>r.style.setProperty(k,t[k]));
+  state.theme=id;save();
+}
+
+function currentTheme(){return THEMES[state.theme||'sunset']||THEMES.sunset;}
+
 // ═══════════════════════════════════════════════════════
 // FLOWERS
 // ═══════════════════════════════════════════════════════
@@ -603,6 +775,10 @@ const FLOWERS=[
   {id:'rose',       src:`${BASE_FLOWERS}/Rose.png`,             fr:'Rose',         en:'Rose',         es:'Rosa',             latin:'Rosa'},
   {id:'tulipe',     src:`${BASE_FLOWERS}/Tulipe.png`,           fr:'Tulipe',       en:'Tulip',        es:'Tulipán',          latin:'Tulipa'},
   {id:'tulipejaune',src:`${BASE_FLOWERS}/Tulipe%20Jaune.png`,   fr:'Tulipe Jaune', en:'Yellow Tulip', es:'Tulipán Amarillo', latin:'Tulipa gesneriana'},
+  {id:'orchidee',   src:null, fr:'Orchidée',    en:'Orchid',     es:'Orquídea',   latin:'Orchidaceae',    emoji:'🌺', premium:true},
+  {id:'pivoine',    src:null, fr:'Pivoine',     en:'Peony',      es:'Peonía',     latin:'Paeonia',        emoji:'🌸', premium:true},
+  {id:'cerisier',   src:null, fr:'Cerisier',    en:'Cherry',     es:'Cerezo',     latin:'Prunus pendula', emoji:'🌸', premium:true},
+  {id:'lotus',      src:null, fr:'Lotus sacré', en:'Sacred Lotus',es:'Loto sagrado',latin:'Nelumbo nucifera',emoji:'🪷', premium:true},
 ];
 
 // ═══════════════════════════════════════════════════════
@@ -719,7 +895,7 @@ const TR={
 // STATE
 // ═══════════════════════════════════════════════════════
 const SK='petale_v3';
-let state={lang:detectLang(),typo:'caveat',color:'#2C2010',entries:{},garden:[],todos:[],seen:false};
+let state={lang:detectLang(),typo:'caveat',color:'#2C2010',entries:{},garden:[],todos:[],seen:false,premium:false,theme:'sunset'};
 let arrMode=false,selFlower=FLOWERS[0];
 let drag=null,dox=0,doy=0,rz=null,rzS=0,rzD=0;
 let recRunning=false,userStopped=false,recognition=null,accumulated='',preRecText='',activeField=null;
@@ -801,6 +977,178 @@ function updateRecUI(on){
   ['g','f','i'].forEach(p=>{const b=document.getElementById('mh-'+p);if(!b)return;b.classList.toggle('rec',on&&activeField&&activeField.startsWith(p));});
 }
 
+
+// ═══════════════════════════════════════════════════════
+// CODES PREMIUM — liste confidentielle
+// ═══════════════════════════════════════════════════════
+const PREMIUM_CODES=[
+  'PETALE-WAJH-ZX6C',
+  'PETALE-PAGS-AGWT',
+  'PETALE-HU3A-3YLE',
+  'PETALE-8LCD-5V3Z',
+  'PETALE-T9NT-4V5U',
+  'PETALE-YBHK-CHDJ',
+  'PETALE-WMMG-J7WV',
+  'PETALE-FZFN-9WTX',
+  'PETALE-42HB-LJG8',
+  'PETALE-6LWN-7QJH',
+  'PETALE-TJU6-NH9S',
+  'PETALE-CBDW-3PCN',
+  'PETALE-9S95-AZXT',
+  'PETALE-JWDP-Q86J',
+  'PETALE-SF75-KWVE',
+  'PETALE-2T2S-ALA7',
+  'PETALE-64KB-68CR',
+  'PETALE-C22E-RTJ5',
+  'PETALE-PGTZ-GK9W',
+  'PETALE-QSDH-LUHH',
+  'PETALE-CWH6-5CHX',
+  'PETALE-GE7U-R33G',
+  'PETALE-DPPQ-ZX9D',
+  'PETALE-NL5H-GQPJ',
+  'PETALE-H7Q5-TB94',
+  'PETALE-975F-RGNB',
+  'PETALE-N9J3-QP89',
+  'PETALE-TYEK-8UTZ',
+  'PETALE-BUS5-F8CF',
+  'PETALE-VXHD-6HVV',
+  'PETALE-PUS7-GYHN',
+  'PETALE-XKL2-CQ99',
+  'PETALE-CGJ7-66MF',
+  'PETALE-4YV9-WA4K',
+  'PETALE-X8ED-DTJV',
+  'PETALE-YGWJ-R65C',
+  'PETALE-PJA2-WJZT',
+  'PETALE-PAC6-6T4U',
+  'PETALE-EEK6-356G',
+  'PETALE-HD26-PVE7',
+  'PETALE-5936-AZL7',
+  'PETALE-353J-3D55',
+  'PETALE-H4QK-3HAG',
+  'PETALE-L58J-WN9T',
+  'PETALE-8D9F-8JDP',
+  'PETALE-ZLVS-NUJY',
+  'PETALE-A7TZ-ZXMC',
+  'PETALE-XLL5-ZKKP',
+  'PETALE-NKEP-8X6V',
+  'PETALE-KTAK-PUWQ',
+  'PETALE-QGR6-3FCS',
+  'PETALE-WL42-XHGA',
+  'PETALE-HR5C-PWGY',
+  'PETALE-RHWA-22DP',
+  'PETALE-F8SB-H5Q3',
+  'PETALE-X9V8-6VZS',
+  'PETALE-4T6Z-RJHW',
+  'PETALE-2SWJ-CKJL',
+  'PETALE-TEHY-YCPT',
+  'PETALE-PGP6-UY52',
+  'PETALE-NAM2-58PZ',
+  'PETALE-TVHH-PALX',
+  'PETALE-NFQE-VANU',
+  'PETALE-AWEQ-BNGL',
+  'PETALE-2N24-JCAT',
+  'PETALE-9MW2-W28G',
+  'PETALE-AEEX-UGY2',
+  'PETALE-FVZD-48DA',
+  'PETALE-KX8N-YCYW',
+  'PETALE-D25V-D93M',
+  'PETALE-PMSL-54D8',
+  'PETALE-W4YP-Z8J3',
+  'PETALE-TRPZ-J54C',
+  'PETALE-6HQV-NA5F',
+  'PETALE-G3L6-YJA8',
+  'PETALE-CZR2-YWR3',
+  'PETALE-CHYK-URSP',
+  'PETALE-ZLYJ-JDGD',
+  'PETALE-T2FG-RZ9S',
+  'PETALE-KDGH-FATJ',
+  'PETALE-9TYE-5R5U',
+  'PETALE-RQFB-8R4N',
+  'PETALE-CWBE-UK9D',
+  'PETALE-2V3H-SQQ5',
+  'PETALE-9KVV-Z8GG',
+  'PETALE-XFFC-AQVK',
+  'PETALE-HYYQ-X73W',
+  'PETALE-X7PT-W74C',
+  'PETALE-FKZU-KDYY',
+  'PETALE-8SRC-BPLJ',
+  'PETALE-C84U-89XJ',
+  'PETALE-B2RW-7FUW',
+  'PETALE-RCML-X5LY',
+  'PETALE-K84T-QLL9',
+  'PETALE-NS9X-TPGM',
+  'PETALE-2W2G-T7QY',
+  'PETALE-D9VH-FTTC',
+  'PETALE-97QD-4RYS',
+  'PETALE-J49H-TN7S',
+  'PETALE-65J3-P7S4'
+];
+
+// ═══════════════════════════════════════════════════════
+// THEMES
+// ═══════════════════════════════════════════════════════
+const THEMES={
+  sunset:{id:'sunset',name:'Sunset Peps',emoji:'🌅',free:true,
+    '--coral':'#FF6B6B','--orange':'#FF8E53','--pink':'#FF6FAE','--violet':'#9B5DE5',
+    '--coral-l':'#FFF0EC','--orange-l':'#FFF4EE','--pink-l':'#FFF0F7','--violet-l':'#F5F0FF',
+    '--coral-d':'#8B2500','--orange-d':'#7B3000','--pink-d':'#7B1A50','--violet-d':'#3D1A7A',
+    '--paper':'#FFFBF8','--line':'#F0E8E0','--margin':'rgba(255,107,174,0.3)',
+    '--text':'#2C2010','--text2':'#8A6A50','--text3':'#C0A898',
+    '--bg2':'#FDF5F0','--border':'#F0DDD0',
+    '--grad':'linear-gradient(135deg,#FF6B6B,#FF8E53,#FF6FAE)',
+    garden:'linear-gradient(180deg,#FFDDE1 0%,#FFB3BA 30%,#FFE4CC 87%,#C8F598 87%,#9ADF6E 100%)'},
+  minuit:{id:'minuit',name:'Minuit',emoji:'🌙',free:false,
+    '--coral':'#9B7FFF','--orange':'#7B5FDF','--pink':'#C8A8FF','--violet':'#6B4FBF',
+    '--coral-l':'#2D1B69','--orange-l':'#231550','--pink-l':'#2A1B5A','--violet-l':'#1A1035',
+    '--coral-d':'#C8A8FF','--orange-d':'#E0C8FF','--pink-d':'#D8B8FF','--violet-d':'#F0E8FF',
+    '--paper':'#1A1035','--line':'#2D1B69','--margin':'rgba(155,127,255,0.15)',
+    '--text':'#E8E0FF','--text2':'#9B8FCC','--text3':'#5A4A8A',
+    '--bg2':'#120D2A','--border':'#2D1B69',
+    '--grad':'linear-gradient(135deg,#3A1A7A,#6B3FBF,#9B5DE5)',
+    garden:'linear-gradient(180deg,#1A1035 0%,#2D1B69 50%,#231550 87%,#1A2040 87%,#0D1428 100%)'},
+  prairie:{id:'prairie',name:'Prairie',emoji:'🌿',free:false,
+    '--coral':'#2D6A4F','--orange':'#52B788','--pink':'#74C69D','--violet':'#1B4332',
+    '--coral-l':'#D8F3DC','--orange-l':'#EAF7EE','--pink-l':'#F0FFF4','--violet-l':'#E8F8EC',
+    '--coral-d':'#1B4332','--orange-d':'#0D2B1F','--pink-d':'#0A2018','--violet-d':'#061510',
+    '--paper':'#F8FFF9','--line':'#D8F3DC','--margin':'rgba(82,183,136,0.25)',
+    '--text':'#1B4332','--text2':'#2D6A4F','--text3':'#74C69D',
+    '--bg2':'#F0FFF4','--border':'#B7E4C7',
+    '--grad':'linear-gradient(135deg,#1B4332,#2D6A4F,#52B788)',
+    garden:'linear-gradient(180deg,#E8F5E0 0%,#C8E8A8 30%,#D8F3DC 87%,#52B788 87%,#2D6A4F 100%)'},
+  rose:{id:'rose',name:'Rose Poudré',emoji:'🌸',free:false,
+    '--coral':'#C9527A','--orange':'#E8A0B4','--pink':'#F0C0D0','--violet':'#8B3A5A',
+    '--coral-l':'#FFE4ED','--orange-l':'#FFF0F5','--pink-l':'#FFF5F8','--violet-l':'#FFEAF2',
+    '--coral-d':'#5C1A35','--orange-d':'#4A1228','--pink-d':'#3A0D20','--violet-d':'#2A0818',
+    '--paper':'#FFF5F8','--line':'#FFE4ED','--margin':'rgba(201,82,122,0.15)',
+    '--text':'#5C1A35','--text2':'#8B3A5A','--text3':'#C9A0B0',
+    '--bg2':'#FFF0F5','--border':'#F5C0D5',
+    '--grad':'linear-gradient(135deg,#8B3A5A,#C9527A,#E8A0B4)',
+    garden:'linear-gradient(180deg,#FFF0F5 0%,#FFD6E8 30%,#FFE4ED 87%,#F5C0D5 87%,#E8A0B4 100%)'},
+  terre:{id:'terre',name:'Terre',emoji:'🤎',free:false,
+    '--coral':'#C27A52','--orange':'#B07850','--pink':'#C4AD96','--violet':'#6B4C3B',
+    '--coral-l':'#EDE0D0','--orange-l':'#F0E8D8','--pink-l':'#F5EFE0','--violet-l':'#EAE0D0',
+    '--coral-d':'#4A3228','--orange-d':'#3A2818','--pink-d':'#3A2A20','--violet-d':'#2A1810',
+    '--paper':'#F5EFE0','--line':'#E8DCC8','--margin':'rgba(180,120,80,0.2)',
+    '--text':'#4A3228','--text2':'#6B4C3B','--text3':'#C4AD96',
+    '--bg2':'#EDE0D0','--border':'#D4C0A8',
+    '--grad':'linear-gradient(135deg,#6B4C3B,#B07850,#C27A52)',
+    garden:'linear-gradient(180deg,#F5EFE0 0%,#E8DCC8 30%,#EDE0D0 87%,#C4AD96 87%,#B07850 100%)'}
+};
+
+function applyTheme(id){
+  const t=THEMES[id]||THEMES.sunset;
+  const r=document.documentElement;
+  const keys=['--coral','--orange','--pink','--violet',
+    '--coral-l','--orange-l','--pink-l','--violet-l',
+    '--coral-d','--orange-d','--pink-d','--violet-d',
+    '--paper','--line','--margin','--text','--text2','--text3',
+    '--bg2','--border','--grad'];
+  keys.forEach(k=>r.style.setProperty(k,t[k]));
+  state.theme=id;save();
+}
+
+function currentTheme(){return THEMES[state.theme||'sunset']||THEMES.sunset;}
+
 // ═══════════════════════════════════════════════════════
 // FLOWERS
 // ═══════════════════════════════════════════════════════
@@ -814,9 +1162,11 @@ function openFlowerPicker(){
   document.getElementById('fp-skip').textContent=tr.fpSkip;
   const g=document.getElementById('fp-grid');g.innerHTML='';
   FLOWERS.forEach((f,i)=>{
-    const d=document.createElement('div');d.className='f-opt'+(i===0?' sel':'');
-    d.innerHTML=`<img src="${f.src}" style="width:40px;height:40px;object-fit:contain;display:block;margin:0 auto 3px;"><span class="f-name">${f[state.lang]||f.fr}</span><span class="f-latin">${f.latin}</span>`;
-    d.onclick=()=>{selFlower=f;document.querySelectorAll('.f-opt').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');};
+    const locked=f.premium&&!state.premium;
+    const d=document.createElement('div');d.className='f-opt'+(locked?' prem':'')+(i===0&&!locked?' sel':'');
+    const imgHtml=f.src?`<img src="${f.src}" style="width:40px;height:40px;object-fit:contain;display:block;margin:0 auto 3px;">`:`<div style="font-size:28px;text-align:center;">${f.emoji||'🌸'}</div>`;
+    d.innerHTML=imgHtml+`<span class="f-name">${f[state.lang]||f.fr}</span><span class="f-latin">${locked?'🔒 Premium':f.latin}</span>`;
+    if(!locked)d.onclick=()=>{selFlower=f;document.querySelectorAll('.f-opt').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');};
     g.appendChild(d);
   });
   document.getElementById('flower-ov').classList.add('open');
@@ -837,7 +1187,7 @@ function renderGarden(){
   document.getElementById('gs-dl').textContent=tr.sDays;
   document.getElementById('gs-fl').textContent=tr.sFleurs;
   document.getElementById('gs-tl').textContent=tr.sTh;
-  const area=document.getElementById('garden-area');area.innerHTML='';
+  const area=document.getElementById('garden-area');area.style.background=currentTheme().garden||THEMES.sunset.garden;area.innerHTML='';
   if(!state.garden.length){const e=document.createElement('div');e.className='g-empty';e.textContent=tr.todayAdd;e.onclick=()=>{if(!state.garden.some(f=>f.date===today()))openFlowerPicker();};area.appendChild(e);return;}
   const w=area.offsetWidth||300;const recent=state.garden.slice(-18);
   recent.forEach((f,i)=>{
@@ -1296,21 +1646,53 @@ function renderStats(){
 function renderSettings(){
   const tr=T();document.getElementById('settings-title').textContent=tr.settingsTitle;
   const wrap=document.getElementById('settings-wrap');
-  wrap.innerHTML=`
+  const isPrem=state.premium;
+  const t=currentTheme();
+
+  // Section Premium / Activation
+  let premSection=`<div class="settings-section">
+    <div class="settings-section-title">${isPrem?'✨ Premium actif':'Mon compte'}</div>`;
+  if(isPrem){
+    premSection+=`<div class="settings-item" style="background:linear-gradient(135deg,var(--coral-l),var(--orange-l));border-color:var(--coral);">
+      <div class="settings-item-ico" style="background:var(--grad);font-size:20px;">✨</div>
+      <div><div class="settings-item-title" style="color:var(--coral-d)">Pétale Premium</div>
+      <div class="settings-item-sub">Toutes les fonctionnalités débloquées</div></div>
+    </div>`;
+  } else {
+    premSection+=`<div style="padding:0.75rem 1rem 0.5rem;font-size:13px;color:var(--text2);">Entre ton code d'activation reçu par email :</div>
+    <div style="display:flex;gap:8px;padding:0 1rem 1rem;">
+      <input id="prem-code-input" type="text" placeholder="PETALE-XXXX-XXXX" style="flex:1;padding:10px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--paper);font-size:13px;font-family:inherit;color:var(--text);outline:none;letter-spacing:0.05em;" oninput="this.value=this.value.toUpperCase()">
+      <button onclick="activatePremium()" style="padding:10px 16px;border-radius:12px;border:none;background:var(--grad);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Activer</button>
+    </div>`;
+  }
+  premSection+=`</div>`;
+
+  // Section Thèmes (Premium)
+  const themeCards=Object.values(THEMES).map(th=>{
+    const active=state.theme===th.id;
+    const locked=!th.free&&!isPrem;
+    return `<div onclick="${locked?'showPremiumAlert()':''}" style="border-radius:12px;padding:10px;cursor:pointer;border:2px solid ${active?'var(--coral)':'var(--border)'};background:${active?'var(--coral-l)':'var(--paper)'};text-align:center;position:relative;${locked?'opacity:0.5;':''}">
+      <div style="font-size:22px;">${th.emoji}</div>
+      <div style="font-size:12px;font-weight:500;color:var(--text);margin-top:3px;">${th.name}</div>
+      ${active?'<div style="font-size:10px;color:var(--coral);font-weight:600;">Actif</div>':''}
+      ${locked?'<div style="position:absolute;top:4px;right:6px;font-size:10px;">🔒</div>':''}
+      ${!locked&&!active?`<div style="font-size:10px;color:var(--text3);cursor:pointer;" onclick="applyTheme('${th.id}');renderSettings();">Choisir</div>`:''}
+    </div>`;
+  }).join('');
+
+  wrap.innerHTML=premSection+`
     <div class="settings-section">
-      <div class="settings-section-title">Général</div>
-      <div class="settings-item" onclick="goOb()">
-        <div class="settings-item-ico" style="background:var(--coral-l)">🌍</div>
-        <div><div class="settings-item-title">${tr.settingLang}</div><div class="settings-item-sub">${tr.settingLangSub}</div></div>
-        <i class="ti ti-chevron-right" style="color:var(--text3);margin-left:auto;"></i>
+      <div class="settings-section-title">🎨 Thèmes${isPrem?'':' — Premium'}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0.5rem 1rem 1rem;">
+        ${themeCards}
       </div>
     </div>
     <div class="settings-section">
-      <div class="settings-section-title">Export & Partage</div>
-      <div class="settings-item" onclick="exportPDF()">
+      <div class="settings-section-title">Export</div>
+      <div class="settings-item" onclick="${isPrem?'exportPDF()':'showPremiumAlert()'}">
         <div class="settings-item-ico" style="background:var(--orange-l)">📄</div>
         <div style="flex:1"><div class="settings-item-title">${tr.settingPDF}</div><div class="settings-item-sub">${tr.settingPDFSub}</div></div>
-        <span class="settings-badge premium">Premium</span>
+        ${isPrem?'<i class="ti ti-chevron-right" style="color:var(--text3);margin-left:auto;"></i>':'<span class="settings-badge premium">Premium</span>'}
       </div>
     </div>
     <div class="settings-section">
@@ -1320,10 +1702,20 @@ function renderSettings(){
         <div style="flex:1"><div class="settings-item-title">${tr.settingRemind}</div><div class="settings-item-sub">${tr.settingRemindSub}</div></div>
         <span class="settings-badge v2">v2</span>
       </div>
+      <div class="settings-item" style="margin-top:6px;">
+        <div class="settings-item-ico" style="background:var(--coral-l)">☁️</div>
+        <div style="flex:1"><div class="settings-item-title">Sauvegarde cloud</div><div class="settings-item-sub">Synchronise tes journaux</div></div>
+        <span class="settings-badge v2">v2</span>
+      </div>
     </div>
     <div class="settings-section">
-      <div class="settings-section-title">App</div>
-      <div class="settings-item">
+      <div class="settings-section-title">Général</div>
+      <div class="settings-item" onclick="goOb()">
+        <div class="settings-item-ico" style="background:var(--coral-l)">🌍</div>
+        <div><div class="settings-item-title">${tr.settingLang}</div><div class="settings-item-sub">${tr.settingLangSub}</div></div>
+        <i class="ti ti-chevron-right" style="color:var(--text3);margin-left:auto;"></i>
+      </div>
+      <div class="settings-item" style="margin-top:6px;">
         <div class="settings-item-ico" style="background:var(--pink-l)">🌸</div>
         <div><div class="settings-item-title">${tr.settingAbout}</div><div class="settings-item-sub">${tr.settingAboutSub}</div></div>
       </div>
@@ -1590,6 +1982,63 @@ function deleteTodo(i){
   if(!state.todos)return;
   state.todos.splice(i,1);
   save();renderTodo();
+}
+
+
+// ═══════════════════════════════════════════════════════
+// PREMIUM — activation, export, alert
+// ═══════════════════════════════════════════════════════
+function activatePremium(){
+  const input=document.getElementById('prem-code-input');if(!input)return;
+  const code=input.value.trim().toUpperCase();
+  if(PREMIUM_CODES.includes(code)){
+    state.premium=true;save();
+    showToast('✨ Premium activé ! Merci !');
+    renderSettings();
+    applyTheme(state.theme||'sunset');
+  } else {
+    showToast('❌ Code invalide — vérifie ton email');
+    input.style.borderColor='#FF4444';
+    setTimeout(()=>input.style.borderColor='',2000);
+  }
+}
+
+function showPremiumAlert(){
+  const tr=T();
+  const msg=tr.lang==='en'?'✨ Premium feature\n\nActivate Premium in Settings → Enter your code.':
+    tr.lang==='es'?'✨ Función Premium\n\nActiva Premium en Ajustes → Introduce tu código.':
+    '✨ Fonctionnalité Premium\n\nActive Premium dans Réglages → Entre ton code d'activation.';
+  alert(msg);
+}
+
+function exportPDF(){
+  if(!state.premium){showPremiumAlert();return;}
+  const tr=T();
+  const entries=Object.keys(state.entries)
+    .filter(k=>state.entries[k]?.text?.trim())
+    .sort().reverse().slice(0,30);
+  if(!entries.length){alert(tr.lang==='en'?'No entries to export.':tr.lang==='es'?'No hay entradas para exportar.':'Aucune entrée à exporter.');return;}
+  const win=window.open('','_blank');
+  const content=entries.map(k=>{
+    const[jid,date]=k.split('__');
+    const e=state.entries[k];
+    const j=tr.journals.find(x=>x.id===jid)||{name:jid,icon:'📝'};
+    return `<div style="page-break-inside:avoid;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid #eee;">
+      <div style="font-size:13px;color:#888;margin-bottom:4px;">${j.icon} ${j.name} — ${new Date(date+'T12:00:00').toLocaleDateString(tr.loc,{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+      <div style="font-size:15px;line-height:1.8;white-space:pre-wrap;">${(e.slots?e.slots.filter(s=>s).join('\n'):e.text)||''}</div>
+    </div>`;
+  }).join('');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pétale — Mon journal</title>
+    <style>body{font-family:Georgia,serif;max-width:600px;margin:40px auto;color:#2C2010;padding:20px;}
+    h1{color:#FF6B6B;font-size:24px;margin-bottom:8px;}
+    .sub{color:#C0A898;font-size:14px;margin-bottom:40px;}
+    @media print{button{display:none;}}</style></head><body>
+    <h1>🌸 Pétale — Mon journal</h1>
+    <div class="sub">Exporté le ${new Date().toLocaleDateString(tr.loc)}</div>
+    ${content}
+    <button onclick="window.print()" style="position:fixed;bottom:20px;right:20px;padding:12px 24px;background:#FF6B6B;color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;">🖨️ Imprimer / PDF</button>
+    </body></html>`);
+  win.document.close();
 }
 
 // ═══════════════════════════════════════════════════════
