@@ -569,10 +569,32 @@ const STICKER_DEFS = {
     {id:'etoile',     emoji:'⭐', name:'Étoile',         src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Illustration_sans_titre%206.png"},
   ],
   premium: [
-    {id:'papillon',   emoji:'🦋', name:'Papillon',       src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Illustration_sans_titre%203.png"},
-    {id:'washicarr',  emoji:'🟥', name:'Washi carreaux', src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Illustration_sans_titre%204.png"},
-    {id:'requins',    emoji:'🦈', name:'Requins',        src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Illustration_sans_titre%207.png"},
-    // Collections à venir — Pack Nature, Pack Humeur, Pack Déco...
+    {id:'pg1',emoji:'🪴',name:'Arrosoir',    theme:'prairie', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-green1.png'},
+    {id:'pg2',emoji:'🌿',name:'Feuille',     theme:'prairie', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-green2.png'},
+    {id:'pg3',emoji:'🌼',name:'Marguerite',  theme:'prairie', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-green3.png'},
+    {id:'pg4',emoji:'🌸',name:'Paquerettes', theme:'prairie', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-green4.png'},
+    {id:'pg5',emoji:'💐',name:'Couronne',    theme:'prairie', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-green5.png'},
+    {id:'pg6',emoji:'🌱',name:'Pousse',      theme:'prairie', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-green6.png'},
+    {id:'pn1',emoji:'🖐',name:'Main',        theme:'minuit',  src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-night1.png'},
+    {id:'pn2',emoji:'🔮',name:'Cristal',     theme:'minuit',  src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-night2.png'},
+    {id:'pn3',emoji:'🕯',name:'Bougie',      theme:'minuit',  src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-night3.png'},
+    {id:'pn4',emoji:'🌿',name:'Branche',     theme:'minuit',  src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-night4.png'},
+    {id:'pn5',emoji:'⭐',name:'Orbite',      theme:'minuit',  src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-night5.png'},
+    {id:'pn6',emoji:'🌙',name:'Lune',        theme:'minuit',  src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-night6.png'},
+    {id:'pn7',emoji:'✨',name:'Etoile',      theme:'minuit',  src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-night7.png'},
+    {id:'pr1',emoji:'⚡',name:'Eclair',      theme:'rose',    src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-rose1.png'},
+    {id:'pr2',emoji:'🪩',name:'Disco',       theme:'rose',    src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-rose2.png'},
+    {id:'pr3',emoji:'7',name:'777',          theme:'rose',    src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-rose3.png'},
+    {id:'pr4',emoji:'🍹',name:'Cocktail',    theme:'rose',    src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-rose4.png'},
+    {id:'pr5',emoji:'🧡',name:'Coeur',       theme:'rose',    src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-rose5.png'},
+    {id:'pr6',emoji:'💄',name:'Glam',        theme:'rose',    src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-rose6.png'},
+    {id:'pr7',emoji:'🌸',name:'Fleur',       theme:'rose',    src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-rose7.png'},
+    {id:'pt1',emoji:'🎀',name:'Noeud',       theme:'terre',   src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-terre1.png'},
+    {id:'pt2',emoji:'🩹',name:'Washi',       theme:'terre',   src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-terre2.png'},
+    {id:'pt3',emoji:'☯',name:'Yin Yang',    theme:'terre',   src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-terre3.png'},
+    {id:'pt4',emoji:'🤎',name:'Leopard',     theme:'terre',   src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-terre4.png'},
+    {id:'pt5',emoji:'☕',name:'Cafe',        theme:'terre',   src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-terre5.png'},
+    {id:'pt6',emoji:'🍂',name:'Automne',     theme:'terre',   src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-terre6.png'},
   ]
 };
 
@@ -1167,16 +1189,22 @@ function renderIntime(j,ek){
     sr.appendChild(b);
   });
   const srp=document.getElementById('sr-i-prem');srp.innerHTML='';
-  if(state.premium&&STICKER_DEFS.premium.length){
-    STICKER_DEFS.premium.forEach(s=>{
+  // Stickers Premium du thème actif uniquement
+  const activeTheme=state.theme||'sunset';
+  const themeStickers=STICKER_DEFS.premium.filter(s=>s.theme===activeTheme);
+  if(state.premium&&themeStickers.length){
+    const thLabel=document.createElement('div');
+    thLabel.style.cssText='width:100%;font-size:10px;font-weight:600;color:var(--text3);margin:6px 0 2px;letter-spacing:0.05em;';
+    const thNames={prairie:'🌿 Prairie',minuit:'🌙 Minuit',rose:'🌸 Rose Poudre',terre:'🤎 Terre'};
+    thLabel.textContent=thNames[activeTheme]||'✨ Premium';srp.appendChild(thLabel);
+    themeStickers.forEach(s=>{
       const b=document.createElement('button');b.className='s-btn';
       if(s.src){const img=document.createElement('img');img.src=s.src;img.style.cssText='width:22px;height:22px;object-fit:contain;';b.appendChild(img);}
       else{b.textContent=s.emoji;}
-      b.onclick=()=>spawnSticker(s.id,s.emoji,s.src,null,null,28);
-      srp.appendChild(b);
+      b.onclick=()=>spawnSticker(s.id,s.emoji,s.src,null,null,28);srp.appendChild(b);
     });
-  } else if(STICKER_DEFS.premium.length){
-    STICKER_DEFS.premium.forEach(s=>{
+  } else if(themeStickers.length){
+    themeStickers.forEach(s=>{
       const span=document.createElement('span');span.style.cssText='font-size:18px;opacity:0.35;cursor:default;';
       span.textContent=s.emoji||'✨';srp.appendChild(span);
     });
