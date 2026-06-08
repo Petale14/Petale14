@@ -896,7 +896,7 @@ const TR={
 // ═══════════════════════════════════════════════════════
 const SK='petale_v3';
 let state={lang:detectLang(),typo:'caveat',color:'#2C2010',entries:{},garden:[],todos:[],seen:false,premium:false,theme:'sunset'};
-let arrMode=false,selFlower=FLOWERS[0];
+let arrMode=false,selFlower=FLOWERS[0],currentEntryDate=null;
 let drag=null,dox=0,doy=0,rz=null,rzS=0,rzD=0;
 let recRunning=false,userStopped=false,recognition=null,accumulated='',preRecText='',activeField=null;
 let currentJid=null,histJid=null,jnlFilter='all';
@@ -1070,7 +1070,7 @@ function renderHome(){
 // OPEN JOURNAL
 // ═══════════════════════════════════════════════════════
 function openJ(id,date){
-  currentJid=id;
+  currentJid=id;currentEntryDate=date||today();
   const j=T().journals.find(x=>x.id===id);if(!j)return;
   const ek=id+'__'+(date||today());
   if(id==='gratitude')renderGratitude(j,ek);
@@ -1167,12 +1167,21 @@ function renderIntime(j,ek){
     sr.appendChild(b);
   });
   const srp=document.getElementById('sr-i-prem');srp.innerHTML='';
-  STICKER_DEFS.premium.forEach(s=>{
-    const span=document.createElement('span');span.style.fontSize='20px';span.textContent=s.src?'':s.emoji;
-    if(s.src){const img=document.createElement('img');img.src=s.src;img.style.cssText='width:20px;height:20px;object-fit:contain;';span.appendChild(img);}
-    srp.appendChild(span);
-  });
-  const pb=document.createElement('span');pb.className='prem-badge';srp.appendChild(pb);pb.textContent='Premium';
+  if(state.premium&&STICKER_DEFS.premium.length){
+    STICKER_DEFS.premium.forEach(s=>{
+      const b=document.createElement('button');b.className='s-btn';
+      if(s.src){const img=document.createElement('img');img.src=s.src;img.style.cssText='width:22px;height:22px;object-fit:contain;';b.appendChild(img);}
+      else{b.textContent=s.emoji;}
+      b.onclick=()=>spawnSticker(s.id,s.emoji,s.src,null,null,28);
+      srp.appendChild(b);
+    });
+  } else if(STICKER_DEFS.premium.length){
+    STICKER_DEFS.premium.forEach(s=>{
+      const span=document.createElement('span');span.style.cssText='font-size:18px;opacity:0.35;cursor:default;';
+      span.textContent=s.emoji||'✨';srp.appendChild(span);
+    });
+    const pb=document.createElement('span');pb.className='prem-badge';srp.appendChild(pb);pb.textContent='Premium';
+  }
   document.getElementById('mhl-i').textContent=tr.micLbl;document.getElementById('mhh-i').textContent=tr.micHint;
   document.getElementById('sv-i').textContent=tr.save;
   document.getElementById('pt-title').textContent=tr.ptTitle;document.getElementById('pt-sub').textContent=tr.ptSub;document.getElementById('pt-badge').textContent=tr.ptBadge;
@@ -1361,7 +1370,7 @@ function dEndT(){drag=null;document.removeEventListener('touchmove',dMoveT);docu
 // SAVE
 // ═══════════════════════════════════════════════════════
 function saveJ(jid){
-  const ek=jid+'__'+today();
+  const ek=jid+'__'+(currentEntryDate||today());
   if(jid==='intime'){
     const photos=[];
     document.querySelectorAll('#scrap-wrap .free-item.is-photo').forEach(el=>{
@@ -1500,12 +1509,11 @@ function renderSettings(){
   const themeCards=Object.values(THEMES).map(th=>{
     const active=state.theme===th.id;
     const locked=!th.free&&!isPrem;
-    return `<div onclick="${locked?'showPremiumAlert()':''}" style="border-radius:12px;padding:10px;cursor:pointer;border:2px solid ${active?'var(--coral)':'var(--border)'};background:${active?'var(--coral-l)':'var(--paper)'};text-align:center;position:relative;${locked?'opacity:0.5;':''}">
-      <div style="font-size:22px;">${th.emoji}</div>
-      <div style="font-size:12px;font-weight:500;color:var(--text);margin-top:3px;">${th.name}</div>
-      ${active?'<div style="font-size:10px;color:var(--coral);font-weight:600;">Actif</div>':''}
-      ${locked?'<div style="position:absolute;top:4px;right:6px;font-size:10px;">🔒</div>':''}
-      ${!locked&&!active?`<div style="font-size:10px;color:var(--text3);cursor:pointer;" onclick="applyTheme('${th.id}');renderSettings();">Choisir</div>`:''}
+    const clickFn=locked?`showPremiumAlert()`:`applyTheme('${th.id}');renderSettings();`;
+    return `<div onclick="${clickFn}" style="border-radius:12px;padding:10px;cursor:pointer;border:2px solid ${active?'var(--coral)':'var(--border)'};background:${active?'var(--coral-l)':'var(--paper)'};text-align:center;position:relative;${locked?'opacity:0.5;':''}">
+      <div style="font-size:24px;">${th.emoji}</div>
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-top:4px;">${th.name}</div>
+      ${active?'<div style="font-size:10px;color:var(--coral);font-weight:700;margin-top:2px;">✓ Actif</div>':'<div style="font-size:10px;color:var(--text3);margin-top:2px;">'+(locked?'🔒 Premium':'Appuyer pour choisir')+'</div>'}
     </div>`;
   }).join('');
 
@@ -1583,7 +1591,10 @@ function renderJournalView(){
   const tr=T();const {jid,date}=jvList[jvIdx];
   const j=tr.journals.find(x=>x.id===jid);if(!j)return;
   const ek=jid+'__'+date;const saved=state.entries[ek];if(!saved)return;
-  const ty=TYPOS.find(t=>t.id===state.typo)||TYPOS[0];
+  // Utiliser typo/couleur de l'entrée, pas le state global
+  const entryTypoId=saved.typo||state.typo;
+  const entryColor=saved.color||state.color||'#2C2010';
+  const ty=TYPOS.find(t=>t.id===entryTypoId)||TYPOS[0];
 
   // Header
   document.getElementById('jv-title').textContent=j.icon+' '+j.name;
@@ -1625,7 +1636,7 @@ function renderJournalView(){
       deep.innerHTML=`<div class="jv-section-lbl" style="color:${j.acc};margin-top:0;"><i class="ti ti-bulb"></i> ${j.deepLbl||''}</div>`;
       deepItems.forEach((s,i)=>{
         const d=document.createElement('div');d.className='jv-slot';d.style.borderLeftColor=j.acc+'88';
-        d.innerHTML=`<div class="jv-slot-num" style="color:${j.acc}">${j.nums?.[i]||`${i+1}.`}</div><div class="jv-text" style="font-family:${ty.f};font-size:${ty.sz};color:${state.color};-webkit-text-fill-color:${state.color};">${s}</div>`;
+        d.innerHTML=`<div class="jv-slot-num" style="color:${j.acc}">${j.nums?.[i]||`${i+1}.`}</div><div class="jv-text" style="font-family:${ty.f};font-size:${ty.sz};color:${entryColor};-webkit-text-fill-color:${entryColor};">${s}</div>`;
         deep.appendChild(d);
       });
       page.appendChild(deep);
@@ -1633,7 +1644,7 @@ function renderJournalView(){
   } else {
     // INTIME — texte + photos + stickers
     const textDiv=document.createElement('div');textDiv.className='jv-text';
-    textDiv.style.cssText=`font-family:${ty.f};font-size:${ty.sz};color:${state.color};-webkit-text-fill-color:${state.color};`;
+    textDiv.style.cssText=`font-family:${ty.f};font-size:${ty.sz};color:${entryColor};-webkit-text-fill-color:${entryColor};`;
     textDiv.textContent=saved.text||'';
     page.appendChild(textDiv);
 
@@ -1843,29 +1854,58 @@ function showPremiumAlert(){
 function exportPDF(){
   if(!state.premium){showPremiumAlert();return;}
   const tr=T();
-  const entries=Object.keys(state.entries)
+  const allKeys=Object.keys(state.entries)
     .filter(k=>state.entries[k]?.text?.trim())
     .sort().reverse().slice(0,30);
-  if(!entries.length){alert(tr.lang==='en'?'No entries to export.':tr.lang==='es'?'No hay entradas para exportar.':'Aucune entrée à exporter.');return;}
+  if(!allKeys.length){alert(tr.lang==='en'?'No entries to export.':tr.lang==='es'?'No hay entradas para exportar.':'Aucune entrée à exporter.');return;}
   const win=window.open('','_blank');
-  const content=entries.map(k=>{
+  const googleFonts='https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Dancing+Script:wght@400;600&family=Pacifico&family=Shadows+Into+Light&family=Patrick+Hand&display=swap';
+  const content=allKeys.map(k=>{
     const[jid,date]=k.split('__');
     const e=state.entries[k];
-    const j=tr.journals.find(x=>x.id===jid)||{name:jid,icon:'📝'};
-    return `<div style="page-break-inside:avoid;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid #eee;">
-      <div style="font-size:13px;color:#888;margin-bottom:4px;">${j.icon} ${j.name} — ${new Date(date+'T12:00:00').toLocaleDateString(tr.loc,{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
-      <div style="font-size:15px;line-height:1.8;white-space:pre-wrap;">${(e.slots?e.slots.filter(s=>s).join('\n'):e.text)||''}</div>
+    const j=tr.journals.find(x=>x.id===jid)||{name:jid,icon:'📝',acc:'#FF6B6B',dk:'#8B2500'};
+    const ty=TYPOS.find(t=>t.id===e.typo)||TYPOS[0];
+    const col=e.color||'#2C2010';
+    const dateStr=new Date(date+'T12:00:00').toLocaleDateString(tr.loc,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const text=(e.slots?e.slots.filter(s=>s).join('\n\n'):e.text)||'';
+    const stickersHtml=(e.stickers||[]).map(s=>{
+      const def=findStickerDef(s.sid)||{emoji:s.emoji||'⭐',src:null};
+      const sz=s.sz||28;
+      if(def.src)return `<img src="${def.src}" style="position:absolute;left:${s.xPx||0}px;top:${s.yPx||0}px;width:${sz}px;height:${sz}px;object-fit:contain;">`;
+      return `<span style="position:absolute;left:${s.xPx||0}px;top:${s.yPx||0}px;font-size:${sz}px;line-height:1;">${def.emoji}</span>`;
+    }).join('');
+    return `<div class="page-entry">
+      <div class="entry-date" style="color:${j.dk}">${j.icon} ${dateStr}</div>
+      <div class="entry-type" style="background:${j.acc}22;color:${j.acc};border:1px solid ${j.acc}44;">${j.name}</div>
+      <div class="entry-canvas" style="position:relative;min-height:${stickersHtml?'200px':'auto'};">
+        <div class="entry-text" style="font-family:${ty.f};font-size:${ty.sz};color:${col};line-height:2;white-space:pre-wrap;">${text}</div>
+        ${stickersHtml}
+      </div>
     </div>`;
   }).join('');
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pétale — Mon journal</title>
-    <style>body{font-family:Georgia,serif;max-width:600px;margin:40px auto;color:#2C2010;padding:20px;}
-    h1{color:#FF6B6B;font-size:24px;margin-bottom:8px;}
-    .sub{color:#C0A898;font-size:14px;margin-bottom:40px;}
-    @media print{button{display:none;}}</style></head><body>
-    <h1>🌸 Pétale — Mon journal</h1>
-    <div class="sub">Exporté le ${new Date().toLocaleDateString(tr.loc)}</div>
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <title>Pétale — Mon journal</title>
+    <link href="${googleFonts}" rel="stylesheet">
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0;}
+      body{background:#FFFBF8;font-family:-apple-system,sans-serif;padding:32px 24px;color:#2C2010;}
+      .pdf-header{text-align:center;margin-bottom:48px;padding-bottom:24px;border-bottom:2px solid #FFE0CC;}
+      .pdf-title{font-size:28px;font-weight:700;background:linear-gradient(135deg,#FF6B6B,#FF8E53,#FF6FAE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+      .pdf-sub{font-size:13px;color:#C0A898;margin-top:6px;}
+      .page-entry{background:#FFFBF8;background-image:linear-gradient(rgba(255,107,174,0.2) 0,rgba(255,107,174,0.2) 100%),repeating-linear-gradient(transparent,transparent 35px,#F0E8E0 35px,#F0E8E0 36px);background-size:1.5px 100%,100% 36px;background-position:38px 0,0 0;background-repeat:no-repeat,repeat;border-radius:12px;padding:1.5rem 1rem 1.5rem 52px;margin-bottom:2rem;page-break-inside:avoid;border:0.5px solid #F0DDD0;}
+      .entry-date{font-size:18px;font-weight:700;margin-bottom:6px;}
+      .entry-type{display:inline-block;font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;margin-bottom:14px;}
+      .entry-canvas{position:relative;}
+      .entry-text{position:relative;z-index:2;}
+      .print-btn{position:fixed;bottom:20px;right:20px;padding:12px 24px;background:linear-gradient(135deg,#FF6B6B,#FF6FAE);color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:700;box-shadow:0 4px 16px rgba(255,107,107,0.4);}
+      @media print{.print-btn{display:none;}body{padding:16px;}@page{margin:1cm;}}
+    </style></head><body>
+    <div class="pdf-header">
+      <div class="pdf-title">🌸 Pétale</div>
+      <div class="pdf-sub">Mon journal — Exporté le ${new Date().toLocaleDateString(tr.loc)}</div>
+    </div>
     ${content}
-    <button onclick="window.print()" style="position:fixed;bottom:20px;right:20px;padding:12px 24px;background:#FF6B6B;color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;">🖨️ Imprimer / PDF</button>
+    <button class="print-btn" onclick="window.print()">🖨️ Imprimer / Sauvegarder en PDF</button>
     </body></html>`);
   win.document.close();
 }
