@@ -551,22 +551,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 const STICKER_DEFS = {
   free: [
     {id:'arco',      emoji:'🌈', name:'Arc-en-ciel', src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Arco.png"},
-    {id:'cierre',    emoji:'💜', name:'Cœur',         src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Cierre.png"},
+    {id:'cierre',    emoji:'💜', name:'Coeur',        src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Cierre.png"},
     {id:'curita',    emoji:'🩹', name:'Pansement',    src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Curita.png"},
-    {id:'empiles',   emoji:'✨', name:'Étincelles',   src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Empiles.png"},
     {id:'grl',       emoji:'💪', name:'GRL PWR',      src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Grl.png"},
-    {id:'margarita', emoji:'🌸', name:'Marguerite',   src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Illustration_sans_titre_2.png"},
-    {id:'washi_blue',emoji:'🌧️', name:'Washi pluie',  src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Illustration_sans_titre.png"},
-    {id:'noeud',     emoji:'🎀', name:'Nœud',         src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Noeud.png"},
-    {id:'sarao',     emoji:'🩷', name:'Washi cœurs',  src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Sarao.png"},
+    {id:'noeud',     emoji:'🎀', name:'Noeud',        src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Noeud.png"},
+    {id:'sarao',     emoji:'🩷', name:'Washi coeurs', src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Sarao.png"},
     {id:'sin',       emoji:'☀️', name:'Soleil',        src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Sin.png"},
-    {id:'teckel',     emoji:'🐕', name:'Teckel',        src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Illustration_sans_titre%2010.png"},
-    {id:'arcoviolet', emoji:'🌈', name:'Arc violet',     src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Illustration_sans_titre%201.png"},
-    {id:'love',       emoji:'💜', name:'Love',           src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Illustration_sans_titre%205.png"},
-    {id:'flamme',     emoji:'🔥', name:'Flamme',         src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Illustration_sans_titre%209.png"},
-    {id:'cerises',    emoji:'🍒', name:'Cerises',        src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Illustration_sans_titre%208.png"},
-    {id:'couroeil',   emoji:'❤️', name:'Cœur œil',      src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Illustration_sans_titre%2011.png"},
-    {id:'etoile',     emoji:'⭐', name:'Étoile',         src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Illustration_sans_titre%206.png"},
+    {id:'arcopink',  emoji:'🌈', name:'Arc violet',   src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/arco-pink.png"},
+    {id:'flame',     emoji:'🔥', name:'Flamme',       src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/flame.png"},
+    {id:'flower',    emoji:'🌸', name:'Fleur',        src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/flower.png"},
+    {id:'love',      emoji:'💜', name:'Love',         src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/love.png"},
+    {id:'shark',     emoji:'🦈', name:'Requin',       src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/shark.png"},
+    {id:'star',      emoji:'⭐', name:'Etoile',       src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/star.png"},
+    {id:'strap1',    emoji:'🩹', name:'Washi 1',      src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Strap%201.png"},
+    {id:'strapblue', emoji:'🌧️', name:'Washi bleu',   src:"https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Strap-blue.png"},
   ],
   premium: [
     {id:'pg1',emoji:'🪴',name:'Arrosoir',    theme:'prairie', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-green1.png'},
@@ -1189,13 +1187,16 @@ function renderIntime(j,ek){
     sr.appendChild(b);
   });
   const srp=document.getElementById('sr-i-prem');srp.innerHTML='';
-  // Stickers Premium du thème actif uniquement
+  // Stickers Premium : gratuits toujours + thème actif si premium
   const activeTheme=state.theme||'sunset';
   const themeStickers=STICKER_DEFS.premium.filter(s=>s.theme===activeTheme);
-  if(state.premium&&themeStickers.length){
+  if(themeStickers.length===0){
+    // Sunset Peps : pas de section premium
+  } else if(state.premium===true){
+    // Premium actif : afficher les stickers du thème
+    const thNames={prairie:'🌿 Prairie',minuit:'🌙 Minuit',rose:'🌸 Rose Poudre',terre:'🤎 Terre'};
     const thLabel=document.createElement('div');
     thLabel.style.cssText='width:100%;font-size:10px;font-weight:600;color:var(--text3);margin:6px 0 2px;letter-spacing:0.05em;';
-    const thNames={prairie:'🌿 Prairie',minuit:'🌙 Minuit',rose:'🌸 Rose Poudre',terre:'🤎 Terre'};
     thLabel.textContent=thNames[activeTheme]||'✨ Premium';srp.appendChild(thLabel);
     themeStickers.forEach(s=>{
       const b=document.createElement('button');b.className='s-btn';
@@ -1203,8 +1204,9 @@ function renderIntime(j,ek){
       else{b.textContent=s.emoji;}
       b.onclick=()=>spawnSticker(s.id,s.emoji,s.src,null,null,28);srp.appendChild(b);
     });
-  } else if(themeStickers.length){
-    themeStickers.forEach(s=>{
+  } else {
+    // Thème premium mais pas activé : afficher verrouillés
+    themeStickers.slice(0,4).forEach(s=>{
       const span=document.createElement('span');span.style.cssText='font-size:18px;opacity:0.35;cursor:default;';
       span.textContent=s.emoji||'✨';srp.appendChild(span);
     });
