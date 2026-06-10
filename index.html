@@ -1530,8 +1530,6 @@ function renderSettings(){
   const tr=T();document.getElementById('settings-title').textContent=tr.settingsTitle;
   const wrap=document.getElementById('settings-wrap');
   const isPrem=state.premium;
-  wrap.innerHTML='';
-  renderFAQ(wrap);
   const t=currentTheme();
 
   // Section Premium / Activation
@@ -1604,6 +1602,7 @@ function renderSettings(){
         <div><div class="settings-item-title">${tr.settingAbout}</div><div class="settings-item-sub">${tr.settingAboutSub}</div></div>
       </div>
     </div>`;
+  renderFAQ(wrap);
 }
 
 function exportPDF(){
