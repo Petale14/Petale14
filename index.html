@@ -110,7 +110,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .c-sep{font-size:11px;color:var(--text3);}
 
 /* MIC HERO */
-.mic-hero-wrap{padding:1.5rem 0 0.75rem;text-align:center;}
+.mic-hero-wrap{padding:1.5rem 0 0.75rem;text-align:center;position:sticky;bottom:0;z-index:15;background:linear-gradient(to bottom,transparent,var(--paper) 45%);margin-top:-1.5rem;}
 .mic-hero{display:inline-flex;flex-direction:column;align-items:center;gap:5px;padding:1rem 2.5rem;border-radius:20px;border:none;cursor:pointer;font-family:inherit;background:var(--grad);color:#fff;box-shadow:0 4px 16px rgba(255,107,107,0.35);transition:transform 0.15s;}
 .mic-hero:active{transform:scale(0.97);}
 .mic-hero.rec{animation:pulseMic 1.5s infinite;}
@@ -291,6 +291,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .todo-mic{padding:10px 16px;border-radius:12px;background:var(--grad);border:none;cursor:pointer;font-size:14px;color:#fff;font-family:inherit;font-weight:700;display:flex;align-items:center;gap:6px;flex-shrink:0;}
 .todo-mic.rec{animation:pulseMic 1.5s infinite;}
 .todo-empty{text-align:center;padding:2.5rem 1rem;font-size:15px;color:var(--text3);font-style:italic;}
+/* Menu radial stickers */
+.radial-overlay{position:fixed;inset:0;z-index:90;background:transparent;}
+.radial-item{position:fixed;width:52px;height:52px;background:var(--paper);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,0.18);cursor:pointer;border:1.5px solid var(--border);z-index:91;transform:scale(0);transition:transform 0.18s cubic-bezier(.34,1.56,.64,1);}
+.radial-item.show{transform:scale(1);}
+.radial-item img{width:34px;height:34px;object-fit:contain;pointer-events:none;}
 
 .toast{position:fixed;bottom:calc(var(--nav-h) + 12px);left:50%;transform:translateX(-50%);background:#2C2010;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;}
@@ -1165,6 +1170,7 @@ function renderIntime(j,ek){
   ta.style.fontFamily=ty.f;ta.style.fontSize=ty.sz;ta.style.color=state.color;ta.style.webkitTextFillColor=state.color;
   // Auto-resize : la textarea grandit avec le texte → plus de scroll interne
   const autoResize=()=>{ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';updateScrapHeight();};
+  setTimeout(addLongPressToScrap,300);
   ta.addEventListener('input',autoResize);
   // Initialiser la hauteur avec le contenu existant
   requestAnimationFrame(autoResize);
@@ -1826,7 +1832,7 @@ function renderTodo(){
   mic.id='todo-mic-btn';
   mic.innerHTML=`<i class="ti ti-microphone" style="font-size:15px;" aria-hidden="true"></i> ${state.lang==='es'?'Dictar':state.lang==='en'?'Dictate':'Dicter'}`;
   mic.onclick=()=>{
-    if(recRunning&&activeField==='todo-input'){stopVoice();}
+    if(recRunning&&activeField==='todo-input'){stopVoice();setTimeout(addTodoItem,200);}
     else{startVoice('todo-input');}
   };
   footer.appendChild(input);footer.appendChild(mic);
@@ -1854,6 +1860,75 @@ function deleteTodo(i){
   save();renderTodo();
 }
 
+
+
+// ═══════════════════════════════════════════════════════
+// MENU RADIAL STICKERS (appui long)
+// ═══════════════════════════════════════════════════════
+let radialOpen=false;
+
+function showRadialMenu(clientX,clientY,wrap){
+  closeRadialMenu();
+  const activeTheme=state.theme||'sunset';
+  let stickers=[];
+  if(state.premium&&activeTheme!=='sunset'){
+    stickers=STICKER_DEFS.premium.filter(s=>s.theme===activeTheme).slice(0,6);
+  }
+  if(!stickers.length)stickers=STICKER_DEFS.free.slice(0,6);
+  if(!stickers.length)return;
+  radialOpen=true;
+  const overlay=document.createElement('div');overlay.className='radial-overlay';overlay.id='radial-overlay';
+  overlay.onclick=closeRadialMenu;document.body.appendChild(overlay);
+  const radius=68;const count=stickers.length;
+  stickers.forEach((s,i)=>{
+    const angle=(i/count)*2*Math.PI - Math.PI/2;
+    const sx=Math.round(Math.cos(angle)*radius);
+    const sy=Math.round(Math.sin(angle)*radius);
+    const item=document.createElement('div');item.className='radial-item';
+    item.style.cssText=`left:${clientX+sx-26}px;top:${clientY+sy-26}px;`;
+    if(s.src){const img=document.createElement('img');img.src=s.src;item.appendChild(img);}
+    else{item.textContent=s.emoji;item.style.fontSize='26px';}
+    item.onclick=(e)=>{
+      e.stopPropagation();
+      const rect=wrap.getBoundingClientRect();
+      const xPx=clientX+sx-rect.left;
+      const yPx=clientY+sy-rect.top+(window.pageYOffset||document.documentElement.scrollTop)-
+        (wrap.getBoundingClientRect().top+(window.pageYOffset||document.documentElement.scrollTop)-
+         (wrap.getBoundingClientRect().top+(window.pageYOffset||document.documentElement.scrollTop)));
+      // Calcul correct position dans scrap-wrap
+      const wrapDocTop=wrap.getBoundingClientRect().top+(window.pageYOffset||0);
+      const wrapDocLeft=wrap.getBoundingClientRect().left+(window.pageXOffset||0);
+      const finalX=(clientX+sx)+(window.pageXOffset||0)-wrapDocLeft-26;
+      const finalY=(clientY+sy)+(window.pageYOffset||0)-wrapDocTop-26;
+      spawnSticker(s.id,s.emoji,s.src,null,null,44,Math.max(0,finalX),Math.max(0,finalY));
+      closeRadialMenu();
+    };
+    document.body.appendChild(item);
+    setTimeout(()=>item.classList.add('show'),i*30+10);
+  });
+}
+
+function closeRadialMenu(){
+  radialOpen=false;
+  document.getElementById('radial-overlay')?.remove();
+  document.querySelectorAll('.radial-item').forEach(el=>el.remove());
+}
+
+function addLongPressToScrap(){
+  const wrap=document.getElementById('scrap-wrap');if(!wrap)return;
+  let timer=null,startX=0,startY=0,moved=false;
+  wrap.addEventListener('touchstart',e=>{
+    if(e.target.classList.contains('free-item')||e.target.closest('.free-item')||e.target.closest('.toolbar'))return;
+    const t=e.touches[0];startX=t.clientX;startY=t.clientY;moved=false;
+    timer=setTimeout(()=>{if(!moved)showRadialMenu(startX,startY,wrap);},500);
+  },{passive:true});
+  wrap.addEventListener('touchmove',e=>{
+    const t=e.touches[0];
+    if(Math.abs(t.clientX-startX)>10||Math.abs(t.clientY-startY)>10){moved=true;clearTimeout(timer);}
+  },{passive:true});
+  wrap.addEventListener('touchend',()=>clearTimeout(timer),{passive:true});
+  wrap.addEventListener('touchcancel',()=>clearTimeout(timer),{passive:true});
+}
 
 // ═══════════════════════════════════════════════════════
 // PREMIUM — activation, export, alert
@@ -1907,7 +1982,7 @@ function exportPDF(){
     return `<div class="page-entry">
       <div class="entry-date" style="color:${j.dk}">${j.icon} ${dateStr}</div>
       <div class="entry-type" style="background:${j.acc}22;color:${j.acc};border:1px solid ${j.acc}44;">${j.name}</div>
-      <div class="entry-canvas" style="position:relative;min-height:${stickersHtml?'200px':'auto'};">
+      <div class="entry-canvas" style="position:relative;min-height:280px;padding-bottom:80px;">
         <div class="entry-text" style="font-family:${ty.f};font-size:${ty.sz};color:${col};line-height:2;white-space:pre-wrap;">${text}</div>
         ${stickersHtml}
       </div>
@@ -1922,7 +1997,7 @@ function exportPDF(){
       .pdf-header{text-align:center;margin-bottom:48px;padding-bottom:24px;border-bottom:2px solid #FFE0CC;}
       .pdf-title{font-size:28px;font-weight:700;background:linear-gradient(135deg,#FF6B6B,#FF8E53,#FF6FAE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
       .pdf-sub{font-size:13px;color:#C0A898;margin-top:6px;}
-      .page-entry{background:#FFFBF8;background-image:linear-gradient(rgba(255,107,174,0.2) 0,rgba(255,107,174,0.2) 100%),repeating-linear-gradient(transparent,transparent 35px,#F0E8E0 35px,#F0E8E0 36px);background-size:1.5px 100%,100% 36px;background-position:38px 0,0 0;background-repeat:no-repeat,repeat;border-radius:12px;padding:1.5rem 1rem 1.5rem 52px;margin-bottom:2rem;page-break-inside:avoid;border:0.5px solid #F0DDD0;}
+      .page-entry{background:#FFFBF8;background-image:linear-gradient(rgba(255,107,174,0.2) 0,rgba(255,107,174,0.2) 100%),repeating-linear-gradient(transparent,transparent 35px,#F0E8E0 35px,#F0E8E0 36px);background-size:1.5px 100%,100% 36px;background-position:38px 0,0 0;background-repeat:no-repeat,repeat;border-radius:12px;padding:1.5rem 1rem 2.5rem 52px;margin-bottom:3rem;page-break-inside:avoid;page-break-after:always;border:0.5px solid #F0DDD0;min-height:350px;}
       .entry-date{font-size:18px;font-weight:700;margin-bottom:6px;}
       .entry-type{display:inline-block;font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;margin-bottom:14px;}
       .entry-canvas{position:relative;}
@@ -1954,7 +2029,8 @@ function showToast(msg){
 // PWA + INIT
 // ═══════════════════════════════════════════════════════
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-load();
+load();state.premium=state.premium===true||state.premium==='true';
+applyTheme(state.theme||'sunset');
 if(state.seen){renderHome();navTo('home');checkFlower();}else renderOb();
 </script>
 </body>
