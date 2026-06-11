@@ -288,7 +288,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .todo-footer{padding:12px 1.25rem;display:flex;gap:10px;border-top:0.5px solid var(--border);background:var(--paper);}
 .todo-input{flex:1;padding:10px 14px;border-radius:12px;border:1.5px dashed var(--violet);background:none;font-size:14px;color:var(--text);font-family:inherit;outline:none;min-width:0;}
 .todo-input::placeholder{color:#CABFFF;}
-.todo-mic{padding:10px 16px;border-radius:12px;background:var(--grad);border:none;cursor:pointer;font-size:14px;color:#fff;font-family:inherit;font-weight:700;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.todo-mic{padding:12px 20px;border-radius:12px;background:var(--grad);border:none;cursor:pointer;font-size:15px;color:#fff;font-family:inherit;font-weight:700;display:flex;align-items:center;gap:7px;flex-shrink:0;}
 .todo-mic.rec{animation:pulseMic 1.5s infinite;}
 .todo-empty{text-align:center;padding:2.5rem 1rem;font-size:15px;color:var(--text3);font-style:italic;}
 /* FAQ */
@@ -1135,7 +1135,7 @@ function renderGratitude(j,ek){
   document.getElementById('g-date-d').textContent=j.desc;
   renderTypoPicker('g',j.acc);renderColorPicker('g',j.acc);
   const wrap=document.getElementById('g-slots');wrap.innerHTML='';
-  [0,1,2].forEach(i=>{const d=document.createElement('div');d.innerHTML=`<div class="slot-num" style="color:${j.acc}">${j.nums[i]}</div><div class="slot-prompt">${j.prompt}</div><textarea class="slot-ta" id="g-s${i}" rows="2" placeholder="${j.prompt}" style="font-family:${ty.f};font-size:${ty.sz};color:${state.color};-webkit-text-fill-color:${state.color};">${saved.slots?.[i]||''}</textarea>`;if(i<2){const hr=document.createElement('hr');hr.className='divider';d.appendChild(hr);}wrap.appendChild(d);});
+  [0,1,2].forEach(i=>{const d=document.createElement('div');d.innerHTML=`<div class="slot-num" style="color:${j.acc}">${j.nums[i]}</div><div class="slot-prompt">${j.prompt}</div><textarea class="slot-ta" id="g-s${i}" rows="2" placeholder="${j.prompt}" style="font-family:${ty.f};font-size:${ty.sz};color:${state.color};-webkit-text-fill-color:${state.color};">${saved.slots?.[i]||''}</textarea>`;if(i<2){const hr=document.createElement('hr');hr.className='divider';d.appendChild(hr);}wrap.appendChild(d);setTimeout(()=>{const ta=document.getElementById('g-s'+i);if(ta){ta.addEventListener('focus',()=>{activeField='g-s'+i;});ta.addEventListener('click',()=>{activeField='g-s'+i;});}},50);});
   renderWeekHl(j);
   document.getElementById('mhl-g').textContent=tr.micLbl;document.getElementById('mhh-g').textContent=tr.micHint;
   document.getElementById('mh-g').onclick=()=>{const f=document.querySelector('#g-slots textarea:focus');toggleVoice(f?f.id:'g-s0');};
@@ -1158,9 +1158,9 @@ function renderFrustration(j,ek){
   document.getElementById('f-date-d').textContent=j.desc;
   renderTypoPicker('f',j.acc);renderColorPicker('f',j.acc);
   const wrap=document.getElementById('f-slots');wrap.innerHTML='';
-  [0,1,2].forEach(i=>{const d=document.createElement('div');d.innerHTML=`<div class="slot-num" style="color:${j.acc}">${j.nums[i]}</div><div class="slot-prompt">${j.prompt}</div><textarea class="slot-ta" id="f-s${i}" rows="2" placeholder="${j.prompt}" style="font-family:${ty.f};font-size:${ty.sz};color:${state.color};-webkit-text-fill-color:${state.color};">${saved.slots?.[i]||''}</textarea>`;if(i<2){const hr=document.createElement('hr');hr.className='divider';d.appendChild(hr);}wrap.appendChild(d);});
+  [0,1,2].forEach(i=>{const d=document.createElement('div');d.innerHTML=`<div class="slot-num" style="color:${j.acc}">${j.nums[i]}</div><div class="slot-prompt">${j.prompt}</div><textarea class="slot-ta" id="f-s${i}" rows="2" placeholder="${j.prompt}" style="font-family:${ty.f};font-size:${ty.sz};color:${state.color};-webkit-text-fill-color:${state.color};">${saved.slots?.[i]||''}</textarea>`;if(i<2){const hr=document.createElement('hr');hr.className='divider';d.appendChild(hr);}wrap.appendChild(d);setTimeout(()=>{const ta=document.getElementById('f-s'+i);if(ta){ta.addEventListener('focus',()=>{activeField='f-s'+i;});ta.addEventListener('click',()=>{activeField='f-s'+i;});}},50);});
   const dw=document.getElementById('f-deep');dw.innerHTML=`<div class="deep-lbl" style="color:${j.acc}"><i class="ti ti-bulb"></i> ${j.deepLbl}</div>`;
-  [0,1,2].forEach(i=>{const d=document.createElement('div');d.innerHTML=`<div class="slot-num" style="color:${j.acc}">${j.nums[i]}</div><textarea class="slot-ta" id="f-d${i}" rows="2" placeholder="${j.deepPrompt}" style="font-family:${ty.f};font-size:${ty.sz};color:${state.color};-webkit-text-fill-color:${state.color};">${saved.deep?.[i]||''}</textarea>`;if(i<2){const hr=document.createElement('hr');hr.className='divider';d.appendChild(hr);}dw.appendChild(d);});
+  [0,1,2].forEach(i=>{const d=document.createElement('div');d.innerHTML=`<div class="slot-num" style="color:${j.acc}">${j.nums[i]}</div><textarea class="slot-ta" id="f-d${i}" rows="2" placeholder="${j.deepPrompt}" style="font-family:${ty.f};font-size:${ty.sz};color:${state.color};-webkit-text-fill-color:${state.color};">${saved.deep?.[i]||''}</textarea>`;if(i<2){const hr=document.createElement('hr');hr.className='divider';d.appendChild(hr);}dw.appendChild(d);setTimeout(()=>{const ta=document.getElementById('f-d'+i);if(ta){ta.addEventListener('focus',()=>{activeField='f-d'+i;});ta.addEventListener('click',()=>{activeField='f-d'+i;});}},50);});
   document.getElementById('mhl-f').textContent=tr.micLbl;document.getElementById('mhh-f').textContent=tr.micHint;
   document.getElementById('mh-f').onclick=()=>{const f=document.querySelector('#f-slots textarea:focus,#f-deep textarea:focus');toggleVoice(f?f.id:'f-s0');};
   document.getElementById('sv-f').textContent=tr.save;
@@ -1207,7 +1207,7 @@ function renderIntime(j,ek){
   const themeStickers=STICKER_DEFS.premium.filter(s=>s.theme===activeTheme);
   if(themeStickers.length===0){
     // Sunset Peps : pas de section premium
-  } else if(state.premium===true){
+  } else if(!!state.premium){
     // Premium actif : afficher les stickers du thème
     const thNames={prairie:'🌿 Prairie',minuit:'🌙 Minuit',rose:'🌸 Rose Poudre',terre:'🤎 Terre'};
     const thLabel=document.createElement('div');
@@ -1436,7 +1436,7 @@ function saveJ(jid){
     const deep=[0,1,2].map(i=>document.getElementById(`f-d${i}`)?.value.trim()||'');
     state.entries[ek]={text:slots.filter(s=>s).join(' | '),slots,deep};
   }
-  save();showToast();
+  save();const _tr=T();showToast(_tr.lang==='en'?'✅ Saved!':_tr.lang==='es'?'✅ Guardado!':'✅ Enregistré !');
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1529,7 +1529,7 @@ function renderStats(){
 function renderSettings(){
   const tr=T();document.getElementById('settings-title').textContent=tr.settingsTitle;
   const wrap=document.getElementById('settings-wrap');
-  const isPrem=state.premium;
+  const isPrem=!!state.premium;
   const t=currentTheme();
 
   // Section Premium / Activation
@@ -1876,25 +1876,63 @@ function deleteTodo(i){
 // ═══════════════════════════════════════════════════════
 // FAQ
 // ═══════════════════════════════════════════════════════
-const FAQ=[
-  {q:"Comment fonctionne le journal vocal ?",a:"Appuie sur le bouton micro, parle librement. Pétale transcrit ta voix en texte en temps réel. Reclique pour arrêter."},
-  {q:"Mes données sont-elles sauvegardées ?",a:"Tout est stocké uniquement sur ton appareil. Aucune donnée ne quitte ton téléphone."},
-  {q:"Comment ajouter des stickers ?",a:"Dans l'onglet Intime, fais un appui long sur la page pour faire apparaître le menu de stickers autour de ton doigt, ou utilise la barre en bas. Tape sur le sticker choisi pour le placer, puis glisse-le où tu veux."},
-  {q:"Comment redimensionner un sticker ?",a:"Une fois placé sur la page, utilise le petit carré en bas à droite du sticker pour l'agrandir ou le réduire. Double-tape dessus pour le supprimer."},
-  {q:"Comment ajouter une photo ?",a:"Dans l'onglet Intime, appuie sur Photos puis Ajouter pour choisir une photo depuis ta galerie. Tu peux ensuite la déplacer, la redimensionner et ajuster son opacité avec le curseur."},
-  {q:"Comment changer la police ?",a:"Dans les onglets, les styles de police sont affichés en haut. Appuie sur celui que tu veux. Chaque entrée garde sa propre police."},
-  {q:"Comment changer la couleur du texte ?",a:"Les ronds de couleur sous les polices te permettent de choisir ta couleur. Chaque entrée garde sa propre couleur."},
-  {q:"Comment fonctionne le jardin ?",a:"Une fleur pousse chaque jour où tu écris au moins une entrée dans n'importe quel journal."},
-  {q:"Comment utiliser la to-do list ?",a:"Va dans l'onglet Tâches. Tape ou dicte tes tâches, coche-les quand elles sont faites, supprime-les avec la poubelle."},
-  {q:"Comment activer le Premium ?",a:"Va dans Réglages, entre ton code d'activation et appuie sur Activer."},
-  {q:"Comment obtenir un code Premium ?",a:"Après ton achat, tu reçois ton code par email dans les 24h."},
-  {q:"Qu'est-ce que le Premium débloque ?",a:"4 thèmes visuels exclusifs (Minuit, Prairie, Rose Poudré, Terre), des collections de stickers dessinés à la main par thème, l'export PDF de ton journal et des fleurs exclusives dans ton jardin."},
-  {q:"Comment changer de thème ?",a:"Va dans Réglages, appuie sur le thème de ton choix. Le thème s'applique immédiatement."},
-  {q:"Le Premium est-il remboursable ?",a:"Non."},
-  {q:"Mon code est-il personnel ?",a:"Chaque code est personnel et non transférable."},
-];
+const FAQ={
+  fr:[
+    {q:"Comment fonctionne le journal vocal ?",a:"Appuie sur le bouton micro, parle librement. Pétale transcrit ta voix en texte en temps réel. Reclique pour arrêter."},
+    {q:"Mes données sont-elles sauvegardées ?",a:"Tout est stocké uniquement sur ton appareil. Aucune donnée ne quitte ton téléphone."},
+    {q:"Comment ajouter des stickers ?",a:"Dans l'onglet Intime, fais un appui long sur la page pour faire apparaître le menu de stickers autour de ton doigt, ou utilise la barre en bas. Tape sur le sticker choisi pour le placer, puis glisse-le où tu veux."},
+    {q:"Comment redimensionner un sticker ?",a:"Une fois placé sur la page, utilise le petit carré en bas à droite du sticker pour l'agrandir ou le réduire. Double-tape dessus pour le supprimer."},
+    {q:"Comment ajouter une photo ?",a:"Dans l'onglet Intime, appuie sur Photos puis Ajouter pour choisir une photo depuis ta galerie. Tu peux ensuite la déplacer, la redimensionner et ajuster son opacité avec le curseur."},
+    {q:"Comment changer la police ?",a:"Dans les onglets, les styles de police sont affichés en haut. Appuie sur celui que tu veux. Chaque entrée garde sa propre police."},
+    {q:"Comment changer la couleur du texte ?",a:"Les ronds de couleur sous les polices te permettent de choisir ta couleur. Chaque entrée garde sa propre couleur."},
+    {q:"Comment fonctionne le jardin ?",a:"Une fleur pousse chaque jour où tu écris au moins une entrée dans n'importe quel journal."},
+    {q:"Comment utiliser la to-do list ?",a:"Va dans l'onglet Tâches. Tape ou dicte tes tâches, coche-les quand elles sont faites, supprime-les avec la poubelle."},
+    {q:"Comment activer le Premium ?",a:"Va dans Réglages, entre ton code d'activation et appuie sur Activer."},
+    {q:"Comment obtenir un code Premium ?",a:"Après ton achat, tu reçois ton code par email dans les 24h."},
+    {q:"Qu'est-ce que le Premium débloque ?",a:"4 thèmes visuels exclusifs (Minuit, Prairie, Rose Poudré, Terre), des collections de stickers dessinés à la main par thème, l'export PDF de ton journal et des fleurs exclusives dans ton jardin."},
+    {q:"Comment changer de thème ?",a:"Va dans Réglages, appuie sur le thème de ton choix. Le thème s'applique immédiatement."},
+    {q:"Le Premium est-il remboursable ?",a:"Non."},
+    {q:"Mon code est-il personnel ?",a:"Chaque code est personnel et non transférable."},
+  ],
+  en:[
+    {q:"How does voice journaling work?",a:"Press the microphone button and speak freely. Pétale transcribes your voice in real time. Press again to stop."},
+    {q:"Is my data saved?",a:"Everything is stored only on your device. No data leaves your phone."},
+    {q:"How do I add stickers?",a:"In the Intimate tab, long press on the page to bring up the sticker menu around your finger, or use the bottom bar. Tap a sticker to place it, then drag it wherever you want."},
+    {q:"How do I resize a sticker?",a:"Once placed, use the small square in the bottom right to resize it. Double-tap to delete it."},
+    {q:"How do I add a photo?",a:"In the Intimate tab, tap Photos then Add to choose a photo from your gallery. You can then move it, resize it and adjust its opacity."},
+    {q:"How do I change the font?",a:"In the journal tabs, font styles are displayed at the top. Tap the one you want. Each entry keeps its own font."},
+    {q:"How do I change the text color?",a:"The colored circles under the fonts let you choose your writing color. Each entry keeps its own color."},
+    {q:"How does the garden work?",a:"A flower grows every day you write at least one entry in any journal."},
+    {q:"How do I use the to-do list?",a:"Go to the Tasks tab. Type or dictate your tasks, check them off when done, delete them with the trash icon."},
+    {q:"How do I activate Premium?",a:"Go to Settings, enter your activation code and tap Activate."},
+    {q:"How do I get a Premium code?",a:"After your purchase, you will receive your code by email within 24 hours."},
+    {q:"What does Premium unlock?",a:"4 exclusive visual themes (Midnight, Prairie, Dusty Rose, Earth), hand-drawn sticker collections per theme, PDF export of your journal and exclusive flowers in your garden."},
+    {q:"How do I change the theme?",a:"Go to Settings and tap the theme of your choice. The theme applies immediately."},
+    {q:"Is Premium refundable?",a:"No."},
+    {q:"Is my code personal?",a:"Each code is personal and non-transferable."},
+  ],
+  es:[
+    {q:"¿Cómo funciona el diario de voz?",a:"Pulsa el botón del micrófono y habla libremente. Pétale transcribe tu voz en tiempo real. Vuelve a pulsar para parar."},
+    {q:"¿Se guardan mis datos?",a:"Todo se almacena únicamente en tu dispositivo. Ningún dato sale de tu teléfono."},
+    {q:"¿Cómo añado stickers?",a:"En la pestaña Íntimo, mantén pulsada la página para que aparezca el menú de stickers alrededor de tu dedo, o usa la barra inferior. Toca el sticker elegido para colocarlo y arrástralo donde quieras."},
+    {q:"¿Cómo redimensiono un sticker?",a:"Una vez colocado, usa el pequeño cuadrado en la esquina inferior derecha para agrandarlo o reducirlo. Doble toque para eliminarlo."},
+    {q:"¿Cómo añado una foto?",a:"En la pestaña Íntimo, pulsa Fotos y luego Añadir para elegir una foto de tu galería. Puedes moverla, redimensionarla y ajustar su opacidad."},
+    {q:"¿Cómo cambio la fuente?",a:"En las pestañas del diario, los estilos de fuente se muestran en la parte superior. Pulsa el que quieras. Cada entrada guarda su propia fuente."},
+    {q:"¿Cómo cambio el color del texto?",a:"Los círculos de colores bajo las fuentes te permiten elegir tu color de escritura. Cada entrada guarda su propio color."},
+    {q:"¿Cómo funciona el jardín?",a:"Una flor crece cada día que escribes al menos una entrada en cualquier diario."},
+    {q:"¿Cómo uso la lista de tareas?",a:"Ve a la pestaña Tareas. Escribe o dicta tus tareas, márcalas cuando estén hechas, elimínalas con la papelera."},
+    {q:"¿Cómo activo Premium?",a:"Ve a Ajustes, introduce tu código de activación y pulsa Activar."},
+    {q:"¿Cómo obtengo un código Premium?",a:"Después de tu compra, recibirás tu código por email en 24 horas."},
+    {q:"¿Qué desbloquea Premium?",a:"4 temas visuales exclusivos (Medianoche, Pradera, Rosa Empolvado, Tierra), colecciones de stickers dibujados a mano por tema, exportación PDF de tu diario y flores exclusivas en tu jardín."},
+    {q:"¿Cómo cambio el tema?",a:"Ve a Ajustes y pulsa el tema de tu elección. El tema se aplica inmediatamente."},
+    {q:"¿Premium es reembolsable?",a:"No."},
+    {q:"¿Mi código es personal?",a:"Cada código es personal e intransferible."},
+  ]
+};
 
 function renderFAQ(container){
+  const lang=state.lang||'fr';
+  const items=FAQ[lang]||FAQ.fr;
   const wrap=document.createElement('div');wrap.className='settings-section';
   const title=document.createElement('div');title.className='settings-section-title';title.textContent='FAQ';
   wrap.appendChild(title);
@@ -1987,11 +2025,11 @@ function activatePremium(){
   const code=input.value.trim().toUpperCase();
   if(PREMIUM_CODES.includes(code)){
     state.premium=true;save();
-    showToast('✨ Premium activé ! Merci !');
+    showToast(T().lang==='en'?'✨ Premium activated! Thank you!':T().lang==='es'?'✨ Premium activado! Gracias!':'✨ Premium activé ! Merci !');
     renderSettings();
     applyTheme(state.theme||'sunset');
   } else {
-    showToast('❌ Code invalide — vérifie ton email');
+    showToast(T().lang==='en'?'❌ Invalid code — check your email':T().lang==='es'?'❌ Código inválido — revisa tu email':'❌ Code invalide — vérifie ton email');
     input.style.borderColor='#FF4444';
     setTimeout(()=>input.style.borderColor='',2000);
   }
@@ -2001,7 +2039,7 @@ function showPremiumAlert(){
   const tr=T();
   const msg=tr.lang==='en'?'✨ Premium feature\n\nActivate Premium in Settings → Enter your code.':
     tr.lang==='es'?'✨ Función Premium\n\nActiva Premium en Ajustes → Introduce tu código.':
-    '✨ Fonctionnalité Premium\n\nActive Premium dans Réglages → Entre ton code Premium.';
+    '✨ Fonctionnalité Premium\n\nActive Premium dans Réglages → Entre ton code.';
   alert(msg);
 }
 
@@ -2084,7 +2122,7 @@ function showToast(msg){
 // PWA + INIT
 // ═══════════════════════════════════════════════════════
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-load();state.premium=state.premium===true||state.premium==='true';
+load();state.premium=!!state.premium;
 applyTheme(state.theme||'sunset');
 if(state.seen){renderHome();navTo('home');checkFlower();}else renderOb();
 </script>
