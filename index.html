@@ -1138,7 +1138,7 @@ function renderGratitude(j,ek){
   [0,1,2].forEach(i=>{const d=document.createElement('div');d.innerHTML=`<div class="slot-num" style="color:${j.acc}">${j.nums[i]}</div><div class="slot-prompt">${j.prompt}</div><textarea class="slot-ta" id="g-s${i}" rows="2" placeholder="${j.prompt}" style="font-family:${ty.f};font-size:${ty.sz};color:${state.color};-webkit-text-fill-color:${state.color};">${saved.slots?.[i]||''}</textarea>`;if(i<2){const hr=document.createElement('hr');hr.className='divider';d.appendChild(hr);}wrap.appendChild(d);setTimeout(()=>{const ta=document.getElementById('g-s'+i);if(ta){ta.addEventListener('focus',()=>{activeField='g-s'+i;});ta.addEventListener('click',()=>{activeField='g-s'+i;});}},50);});
   renderWeekHl(j);
   document.getElementById('mhl-g').textContent=tr.micLbl;document.getElementById('mhh-g').textContent=tr.micHint;
-  document.getElementById('mh-g').onclick=()=>{const f=document.querySelector('#g-slots textarea:focus');toggleVoice(f?f.id:'g-s0');};
+  document.getElementById('mh-g').onclick=()=>{const fid=(activeField&&activeField.startsWith('g-s'))?activeField:'g-s0';toggleVoice(fid);};
   document.getElementById('sv-g').textContent=tr.save;
 }
 function renderWeekHl(j){
@@ -1162,7 +1162,7 @@ function renderFrustration(j,ek){
   const dw=document.getElementById('f-deep');dw.innerHTML=`<div class="deep-lbl" style="color:${j.acc}"><i class="ti ti-bulb"></i> ${j.deepLbl}</div>`;
   [0,1,2].forEach(i=>{const d=document.createElement('div');d.innerHTML=`<div class="slot-num" style="color:${j.acc}">${j.nums[i]}</div><textarea class="slot-ta" id="f-d${i}" rows="2" placeholder="${j.deepPrompt}" style="font-family:${ty.f};font-size:${ty.sz};color:${state.color};-webkit-text-fill-color:${state.color};">${saved.deep?.[i]||''}</textarea>`;if(i<2){const hr=document.createElement('hr');hr.className='divider';d.appendChild(hr);}dw.appendChild(d);setTimeout(()=>{const ta=document.getElementById('f-d'+i);if(ta){ta.addEventListener('focus',()=>{activeField='f-d'+i;});ta.addEventListener('click',()=>{activeField='f-d'+i;});}},50);});
   document.getElementById('mhl-f').textContent=tr.micLbl;document.getElementById('mhh-f').textContent=tr.micHint;
-  document.getElementById('mh-f').onclick=()=>{const f=document.querySelector('#f-slots textarea:focus,#f-deep textarea:focus');toggleVoice(f?f.id:'f-s0');};
+  document.getElementById('mh-f').onclick=()=>{const fid=(activeField&&(activeField.startsWith('f-s')||activeField.startsWith('f-d')))?activeField:'f-s0';toggleVoice(fid);};
   document.getElementById('sv-f').textContent=tr.save;
 }
 
@@ -1436,7 +1436,7 @@ function saveJ(jid){
     const deep=[0,1,2].map(i=>document.getElementById(`f-d${i}`)?.value.trim()||'');
     state.entries[ek]={text:slots.filter(s=>s).join(' | '),slots,deep};
   }
-  save();const _tr=T();showToast(_tr.lang==='en'?'✅ Saved!':_tr.lang==='es'?'✅ Guardado!':'✅ Enregistré !');
+  save();showToast(state.lang==='en'?'✅ Saved!':state.lang==='es'?'✅ Guardado!':'✅ Enregistré !');
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2025,11 +2025,11 @@ function activatePremium(){
   const code=input.value.trim().toUpperCase();
   if(PREMIUM_CODES.includes(code)){
     state.premium=true;save();
-    showToast(T().lang==='en'?'✨ Premium activated! Thank you!':T().lang==='es'?'✨ Premium activado! Gracias!':'✨ Premium activé ! Merci !');
+    showToast(state.lang==='en'?'✨ Premium activated! Thank you!':state.lang==='es'?'✨ Premium activado! Gracias!':'✨ Premium activé ! Merci !');
     renderSettings();
     applyTheme(state.theme||'sunset');
   } else {
-    showToast(T().lang==='en'?'❌ Invalid code — check your email':T().lang==='es'?'❌ Código inválido — revisa tu email':'❌ Code invalide — vérifie ton email');
+    showToast(state.lang==='en'?'❌ Invalid code — check your email':state.lang==='es'?'❌ Código inválido — revisa tu email':'❌ Code invalide — vérifie ton email');
     input.style.borderColor='#FF4444';
     setTimeout(()=>input.style.borderColor='',2000);
   }
