@@ -1606,7 +1606,8 @@ function renderSettings(){
 }
 
 function exportPDF(){
-  alert('📄 Export PDF\n\nOuvre le journal que tu veux imprimer, puis utilise\nFichier → Imprimer → Enregistrer en PDF\n\nFonctionnalité Premium complète — bientôt disponible.');
+  if(!state.premium){showPremiumAlert();return;}
+  showExportModal();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -2043,70 +2044,84 @@ function showPremiumAlert(){
   alert(msg);
 }
 
-function exportPDF(){
-  if(!state.premium){showPremiumAlert();return;}
+function showExportModal(){
+  document.getElementById('export-modal-ov')?.remove();
+  const tr=T();
+  const overlay=document.createElement('div');overlay.id='export-modal-ov';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:flex-end;justify-content:center;';
+  const modal=document.createElement('div');
+  modal.style.cssText='background:var(--paper);border-radius:24px 24px 0 0;padding:1.5rem 1.5rem 2.5rem;width:100%;max-width:430px;';
+  const title=state.lang==='en'?'Export PDF':state.lang==='es'?'Exportar PDF':'Exporter en PDF';
+  const sub=state.lang==='en'?'Choose which journals to export':state.lang==='es'?'Elige que diarios exportar':'Choisis les journaux a exporter';
+  modal.innerHTML='<div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px;">'+title+'</div><div style="font-size:13px;color:var(--text3);margin-bottom:20px;">'+sub+'</div>';
+  const journals=[
+    {id:'gratitude',label:tr.journals.find(j=>j.id==='gratitude')?.name||'Gratitude',icon:'🌸'},
+    {id:'frustration',label:tr.journals.find(j=>j.id==='frustration')?.name||'Frustration',icon:'🔥'},
+    {id:'intime',label:tr.journals.find(j=>j.id==='intime')?.name||'Intime',icon:'🌙'},
+  ];
+  const cbWrap=document.createElement('div');cbWrap.style.cssText='display:flex;flex-direction:column;gap:10px;margin-bottom:24px;';
+  journals.forEach(j=>{
+    const lbl=document.createElement('label');
+    lbl.style.cssText='display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg2);border-radius:12px;cursor:pointer;';
+    lbl.innerHTML='<input type="checkbox" id="pdf-cb-'+j.id+'" checked style="width:18px;height:18px;accent-color:var(--coral);cursor:pointer;"><span style="font-size:20px;">'+j.icon+'</span><span style="font-size:15px;font-weight:500;color:var(--text);">'+j.label+'</span>';
+    cbWrap.appendChild(lbl);
+  });
+  modal.appendChild(cbWrap);
+  const btns=document.createElement('div');btns.style.cssText='display:flex;gap:10px;';
+  const cancelBtn=document.createElement('button');
+  cancelBtn.textContent=state.lang==='en'?'Cancel':state.lang==='es'?'Cancelar':'Annuler';
+  cancelBtn.style.cssText='flex:1;padding:14px;border-radius:14px;border:1.5px solid var(--border);background:none;font-size:15px;font-family:inherit;color:var(--text2);cursor:pointer;';
+  cancelBtn.onclick=()=>overlay.remove();
+  const exportBtn=document.createElement('button');
+  exportBtn.textContent=state.lang==='en'?'Export':state.lang==='es'?'Exportar':'Exporter';
+  exportBtn.style.cssText='flex:2;padding:14px;border-radius:14px;border:none;background:var(--grad);color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;';
+  exportBtn.onclick=()=>{
+    const selected=journals.filter(j=>document.getElementById('pdf-cb-'+j.id)?.checked).map(j=>j.id);
+    overlay.remove();generatePDF(selected);
+  };
+  btns.appendChild(cancelBtn);btns.appendChild(exportBtn);modal.appendChild(btns);
+  overlay.appendChild(modal);overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+  document.body.appendChild(overlay);
+}
+
+function generatePDF(selectedJournals){
   const tr=T();
   const allKeys=Object.keys(state.entries)
-    .filter(k=>state.entries[k]?.text?.trim())
+    .filter(k=>{const[jid]=k.split('__');return selectedJournals.includes(jid)&&state.entries[k]?.text?.trim();})
     .sort().reverse().slice(0,30);
-  if(!allKeys.length){alert(tr.lang==='en'?'No entries to export.':tr.lang==='es'?'No hay entradas para exportar.':'Aucune entrée à exporter.');return;}
+  if(!allKeys.length){alert(state.lang==='en'?'No entries to export.':state.lang==='es'?'No hay entradas para exportar.':'Aucune entree a exporter.');return;}
   const win=window.open('','_blank');
-  const googleFonts='https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Dancing+Script:wght@400;600&family=Pacifico&family=Shadows+Into+Light&family=Patrick+Hand&display=swap';
-  const content=allKeys.map(k=>{
+  const gFonts='https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Dancing+Script:wght@400;600&family=Pacifico&family=Shadows+Into+Light&family=Patrick+Hand&display=swap';
+  const entries=allKeys.map(k=>{
     const[jid,date]=k.split('__');
     const e=state.entries[k];
     const j=tr.journals.find(x=>x.id===jid)||{name:jid,icon:'📝',acc:'#FF6B6B',dk:'#8B2500'};
     const ty=TYPOS.find(t=>t.id===e.typo)||TYPOS[0];
     const col=e.color||'#2C2010';
-    const dateStr=new Date(date+'T12:00:00').toLocaleDateString(tr.loc,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const ds=new Date(date+'T12:00:00').toLocaleDateString(tr.loc,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     const text=(e.slots?e.slots.filter(s=>s).join('\n\n'):e.text)||'';
-    const stickersHtml=(e.stickers||[]).map(s=>{
-      const def=findStickerDef(s.sid)||{emoji:s.emoji||'⭐',src:null};
-      const sz=s.sz||28;
-      if(def.src)return `<img src="${def.src}" style="position:absolute;left:${s.xPx||0}px;top:${s.yPx||0}px;width:${sz}px;height:${sz}px;object-fit:contain;">`;
-      return `<span style="position:absolute;left:${s.xPx||0}px;top:${s.yPx||0}px;font-size:${sz}px;line-height:1;">${def.emoji}</span>`;
+    let maxB=0;
+    (e.stickers||[]).forEach(s=>{maxB=Math.max(maxB,(s.yPx||0)+(s.sz||28)+20);});
+    (e.photos||[]).forEach(p=>{maxB=Math.max(maxB,(p.yPx||0)+(p.w||110)+20);});
+    const ch=maxB>0?maxB+40:null;
+    const sh=(e.stickers||[]).map(s=>{
+      const def=findStickerDef(s.sid)||{emoji:s.emoji||'⭐',src:null};const sz=s.sz||28;
+      if(def.src)return '<img src="'+def.src+'" style="position:absolute;left:'+(s.xPx||0)+'px;top:'+(s.yPx||0)+'px;width:'+sz+'px;height:'+sz+'px;object-fit:contain;">';
+      return '<span style="position:absolute;left:'+(s.xPx||0)+'px;top:'+(s.yPx||0)+'px;font-size:'+sz+'px;line-height:1;">'+def.emoji+'</span>';
     }).join('');
-    const photosHtml=(e.photos||[]).map(p=>{
+    const ph=(e.photos||[]).map(p=>{
       const w=p.w||110;
-      return `<img src="${p.src}" style="position:absolute;left:${p.xPx||0}px;top:${p.yPx||0}px;max-width:${w}px;max-height:${w}px;object-fit:contain;opacity:${p.opacity||1};">`;
+      return '<img src="'+p.src+'" style="position:absolute;left:'+(p.xPx||0)+'px;top:'+(p.yPx||0)+'px;max-width:'+w+'px;max-height:'+w+'px;object-fit:contain;opacity:'+(p.opacity||1)+';">';
     }).join('');
-    const hasMedia=(e.stickers||[]).length+(e.photos||[]).length;
-    return `<div class="page-entry">
-      <div class="entry-date" style="color:${j.dk}">${j.icon} ${dateStr}</div>
-      <div class="entry-type" style="background:${j.acc}22;color:${j.acc};border:1px solid ${j.acc}44;">${j.name}</div>
-      <div class="entry-canvas" style="position:relative;min-height:${hasMedia?'320px':'auto'};padding-bottom:${hasMedia?'100px':'20px'};">
-        <div class="entry-text" style="font-family:${ty.f};font-size:${ty.sz};color:${col};line-height:2;white-space:pre-wrap;">${text}</div>
-        ${photosHtml}
-        ${stickersHtml}
-      </div>
-    </div>`;
+    return '<div class="pe"><div class="ed" style="color:'+j.dk+'">'+j.icon+' '+ds+'</div><div class="et" style="background:'+j.acc+'22;color:'+j.acc+';border:1px solid '+j.acc+'44;">'+j.name+'</div><div class="ec" style="position:relative;overflow:visible;'+(ch?'height:'+ch+'px;':'min-height:40px;')+'"><div class="etx" style="font-family:'+ty.f+';font-size:'+ty.sz+';color:'+col+';line-height:2;white-space:pre-wrap;">'+text+'</div>'+ph+sh+'</div></div>';
   }).join('');
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
-    <title>Pétale — Mon journal</title>
-    <link href="${googleFonts}" rel="stylesheet">
-    <style>
-      *{box-sizing:border-box;margin:0;padding:0;}
-      body{background:#FFFBF8;font-family:-apple-system,sans-serif;padding:32px 24px;color:#2C2010;}
-      .pdf-header{text-align:center;margin-bottom:48px;padding-bottom:24px;border-bottom:2px solid #FFE0CC;}
-      .pdf-title{font-size:28px;font-weight:700;background:linear-gradient(135deg,#FF6B6B,#FF8E53,#FF6FAE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-      .pdf-sub{font-size:13px;color:#C0A898;margin-top:6px;}
-      .page-entry{background:#FFFBF8;background-image:linear-gradient(rgba(255,107,174,0.2) 0,rgba(255,107,174,0.2) 100%),repeating-linear-gradient(transparent,transparent 35px,#F0E8E0 35px,#F0E8E0 36px);background-size:1.5px 100%,100% 36px;background-position:38px 0,0 0;background-repeat:no-repeat,repeat;border-radius:12px;padding:1.5rem 1rem 2.5rem 52px;margin-bottom:3rem;page-break-inside:avoid;page-break-after:always;border:0.5px solid #F0DDD0;min-height:350px;}
-      .entry-date{font-size:18px;font-weight:700;margin-bottom:6px;}
-      .entry-type{display:inline-block;font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;margin-bottom:14px;}
-      .entry-canvas{position:relative;}
-      .entry-text{position:relative;z-index:2;}
-      .print-btn{position:fixed;bottom:20px;right:20px;padding:12px 24px;background:linear-gradient(135deg,#FF6B6B,#FF6FAE);color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:700;box-shadow:0 4px 16px rgba(255,107,107,0.4);}
-      @media print{.print-btn{display:none;}body{padding:16px;}@page{margin:1cm;}}
-    </style></head><body>
-    <div class="pdf-header">
-      <div class="pdf-title">🌸 Pétale</div>
-      <div class="pdf-sub">Mon journal — Exporté le ${new Date().toLocaleDateString(tr.loc)}</div>
-    </div>
-    ${content}
-    <button class="print-btn" onclick="window.print()">🖨️ Imprimer / Sauvegarder en PDF</button>
-    </body></html>`);
+  const css='*{box-sizing:border-box;margin:0;padding:0;}body{background:#FFFBF8;font-family:-apple-system,sans-serif;padding:32px 24px;color:#2C2010;}.hdr{text-align:center;margin-bottom:48px;padding-bottom:24px;border-bottom:2px solid #FFE0CC;}.ht{font-size:28px;font-weight:700;background:linear-gradient(135deg,#FF6B6B,#FF8E53,#FF6FAE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}.hs{font-size:13px;color:#C0A898;margin-top:6px;}.pe{background:#FFFBF8;background-image:linear-gradient(rgba(255,107,174,0.2) 0,rgba(255,107,174,0.2) 100%),repeating-linear-gradient(transparent,transparent 35px,#F0E8E0 35px,#F0E8E0 36px);background-size:1.5px 100%,100% 36px;background-position:38px 0,0 0;background-repeat:no-repeat,repeat;border-radius:12px;padding:1.5rem 1rem 2.5rem 52px;margin-bottom:3rem;page-break-inside:avoid;page-break-after:always;border:0.5px solid #F0DDD0;overflow:visible;}.ed{font-size:18px;font-weight:700;margin-bottom:6px;}.et{display:inline-block;font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;margin-bottom:14px;}.ec{position:relative;overflow:visible;}.etx{position:relative;z-index:2;}.pb{position:fixed;bottom:20px;right:20px;padding:12px 24px;background:linear-gradient(135deg,#FF6B6B,#FF6FAE);color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:700;}@media print{.pb{display:none;}body{padding:16px;}@page{margin:1cm;}}';
+  const btnTxt=state.lang==='en'?'Print / Save PDF':state.lang==='es'?'Imprimir / Guardar PDF':'Imprimer / Sauvegarder en PDF';
+  const subTxt=state.lang==='en'?'My journal':'Mon journal';
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Petale</title><link href="'+gFonts+'" rel="stylesheet"><style>'+css+'</style></head><body><div class="hdr"><div class="ht">🌸 Petale</div><div class="hs">'+subTxt+' — '+new Date().toLocaleDateString(tr.loc)+'</div></div>'+entries+'<button class="pb" onclick="window.print()">'+btnTxt+'</button></body></html>');
   win.document.close();
 }
+
 
 // ═══════════════════════════════════════════════════════
 // TOAST
