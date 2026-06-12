@@ -372,8 +372,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- GRATITUDE -->
 <div id="screen-gratitude" class="screen j-page">
   <div class="j-hdr">
-    <button class="back-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
-    <span class="j-hdr-title" id="g-hdr-t"></span>
+    <button class="back-btn" onclick="saveAndGoHome('gratitude')"><i class="ti ti-arrow-left"></i></button>
     <button class="j-hdr-icon" onclick="openHistory('gratitude')"><i class="ti ti-calendar"></i></button>
   </div>
   <div class="j-inner">
@@ -396,8 +395,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- FRUSTRATION -->
 <div id="screen-frustration" class="screen j-page">
   <div class="j-hdr">
-    <button class="back-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
-    <span class="j-hdr-title" id="f-hdr-t"></span>
+    <button class="back-btn" onclick="saveAndGoHome('frustration')"><i class="ti ti-arrow-left"></i></button>
     <button class="j-hdr-icon" onclick="openHistory('frustration')"><i class="ti ti-calendar"></i></button>
   </div>
   <div class="j-inner">
@@ -420,8 +418,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- INTIME -->
 <div id="screen-intime" class="screen j-page">
   <div class="j-hdr">
-    <button class="back-btn" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
-    <span class="j-hdr-title" id="i-hdr-t"></span>
+    <button class="back-btn" onclick="saveAndGoHome('intime')"><i class="ti ti-arrow-left"></i></button>
     <button class="j-hdr-icon" onclick="openPreview()"><i class="ti ti-eye"></i></button>
     <button class="j-hdr-icon" onclick="openHistory('intime')"><i class="ti ti-calendar"></i></button>
   </div>
@@ -1080,6 +1077,11 @@ function renderOb(){
 }
 function startApp(){state.seen=true;save();renderHome();navTo('home');checkFlower();}
 function goOb(){show('ob');renderOb();}
+function saveAndGoHome(jid){
+  saveJ(jid);
+  setTimeout(()=>goHome(),300);
+}
+
 function goHome(){stopVoice();navTo('home');}
 
 // ═══════════════════════════════════════════════════════
