@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.petale.journal",
+    "sha256_cert_fingerprints": [
+      "99:4A:14:B6:A4:19:0A:FE:62:0B:7E:5E:A0:E7:47:DA:BD:FD:10:73:35:C4:49:97:56:11:A9:7D:93:10:5E:EA"
+    ]
+  }
+}]
