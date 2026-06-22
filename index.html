@@ -1055,7 +1055,7 @@ function renderGarden(){
   document.getElementById('gs-tl').textContent=tr.sTh;
   const area=document.getElementById('garden-area');area.style.background=currentTheme().garden||THEMES.sunset.garden;area.innerHTML='';
   if(!state.garden.length){const e=document.createElement('div');e.className='g-empty';e.textContent=tr.todayAdd;e.onclick=()=>{if(!state.garden.some(f=>f.date===today()))openFlowerPicker();};area.appendChild(e);return;}
-  const w=area.offsetWidth||300;const recent=state.garden.slice(-18);
+  const w=area.offsetWidth||300;const recent=state.garden.slice(-18);const n=recent.length;
   recent.forEach((f,i)=>{
     const el=document.createElement('div');el.className='g-flower';
     el.style.cssText='position:absolute;';
@@ -1135,8 +1135,11 @@ function generateBouquetSVG(flowers,theme){
   const themeId=theme||'sunset';
   const ribbonColor=RIBBON_COLORS[themeId]||RIBBON_COLORS.sunset;
   const n=Math.min(flowers.length,12);
-  const svg='<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;"><defs><filter id="shadow"><feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.2"/></filter></defs>';
-  let content='';
+  
+  // Style + animations
+  const style='<style>@keyframes flowerAppear{0%{opacity:0;transform:scale(0) translateY(-20px);}100%{opacity:1;transform:scale(1) translateY(0);}}@keyframes ribbonUnroll{0%{opacity:0;transform:scaleY(0);}100%{opacity:1;transform:scaleY(1);}}</style>';
+  
+  let content='<rect width="300" height="400" fill="transparent"/>';
   
   // Tige principale
   content+='<line x1="150" y1="280" x2="150" y2="360" stroke="#2D6A4F" stroke-width="3" stroke-linecap="round"/>';
@@ -1155,10 +1158,7 @@ function generateBouquetSVG(flowers,theme){
   // Ruban enroulé
   content+='<g style="animation:ribbonUnroll 1.2s ease-out 0.3s both;"><ellipse cx="150" cy="140" rx="75" ry="70" fill="none" stroke="'+ribbonColor+'" stroke-width="8" opacity="0.7" style="filter:url(#shadow);"/><ellipse cx="150" cy="150" rx="73" ry="68" fill="none" stroke="'+ribbonColor+'" stroke-width="6" opacity="0.5"/></g>';
   
-  // Style + animations
-  const style='<style>@keyframes flowerAppear{0%{opacity:0;transform:scale(0) translateY(-20px);}100%{opacity:1;transform:scale(1) translateY(0);}}@keyframes ribbonUnroll{0%{opacity:0;transform:scaleY(0);}100%{opacity:1;transform:scaleY(1);}}</style>';
-  
-  return style+'<rect width="300" height="400" fill="transparent"/>'+content+'</svg>';
+  return '<svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;"><defs><filter id="shadow"><feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.2"/></filter></defs>'+style+content+'</svg>';
 }
 
 function showBouquetPreview(selectedFlowers){
