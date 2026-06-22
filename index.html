@@ -928,7 +928,7 @@ const TR={
 // STATE
 // ═══════════════════════════════════════════════════════
 const SK='petale_v3';
-let state={lang:detectLang(),typo:'caveat',color:'#2C2010',entries:{},garden:[],todos:[],seen:false,premium:false,theme:'sunset'};
+let state={lang:detectLang(),typo:'caveat',color:'#2C2010',entries:{},garden:[],todos:[],bouquets:[],seen:false,premium:false,theme:'sunset'};
 let arrMode=false,selFlower=FLOWERS[0],currentEntryDate=null;
 let drag=null,dox=0,doy=0,rz=null,rzS=0,rzD=0;
 let recRunning=false,userStopped=false,recognition=null,accumulated='',preRecText='',activeField=null;
@@ -1070,7 +1070,61 @@ function renderGarden(){
 }
 
 // ═══════════════════════════════════════════════════════
-// ONBOARDING
+// BOUQUETS — Logic
+// ═══════════════════════════════════════════════════════
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function getMonthKey(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function isEndOfMonth(){const d=new Date();return new Date(d.getFullYear(),d.getMonth()+1,0).getDate()===d.getDate();}
+function getFlowersOfMonth(){const mk=getMonthKey();return state.garden.filter(f=>f.date.startsWith(mk));}
+function openBouquetModal(){
+  const flowers=getFlowersOfMonth();
+  if(!flowers.length){alert('Aucune fleur ce mois-ci');return;}
+  const tr=T();
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:flex-end;justify-content:center;';
+  const modal=document.createElement('div');
+  modal.style.cssText='background:var(--paper);border-radius:24px 24px 0 0;padding:1.5rem 1.5rem 2.5rem;width:100%;max-width:430px;max-height:80vh;overflow-y:auto;';
+  modal.innerHTML='<div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:12px;">Créer un bouquet</div><div style="font-size:13px;color:var(--text3);margin-bottom:18px;">'+flowers.length+' fleurs ce mois</div>';
+  const grid=document.createElement('div');
+  grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(60px,1fr));gap:10px;margin-bottom:20px;';
+  flowers.forEach(f=>{
+    const div=document.createElement('div');
+    const fDef=FLOWERS.find(fd=>fd.id===f.id)||FLOWERS[0];
+    div.style.cssText='cursor:pointer;padding:10px;border-radius:12px;border:2px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:center;aspect-ratio:1;transition:all 0.2s;';
+    div.innerHTML='<img src="'+(fDef?.src||'')+'" style="width:40px;height:40px;object-fit:contain;">';
+    div.dataset.flowerid=f.id;div.dataset.flowerdate=f.date;
+    div.onmouseover=()=>div.style.borderColor='var(--coral)';
+    div.onmouseout=()=>div.style.borderColor='var(--border)';
+    div.onclick=()=>{div.classList.toggle('sel');div.style.borderColor=div.classList.contains('sel')?'var(--coral)':'var(--border)';};
+    grid.appendChild(div);
+  });
+  modal.appendChild(grid);
+  const btns=document.createElement('div');btns.style.cssText='display:flex;gap:10px;';
+  const cancelBtn=document.createElement('button');
+  cancelBtn.textContent='Annuler';
+  cancelBtn.style.cssText='flex:1;padding:14px;border-radius:14px;border:1.5px solid var(--border);background:none;font-size:15px;font-family:inherit;color:var(--text2);cursor:pointer;';
+  cancelBtn.onclick=()=>overlay.remove();
+  const createBtn=document.createElement('button');
+  createBtn.textContent='Créer le bouquet';
+  createBtn.style.cssText='flex:2;padding:14px;border-radius:14px;border:none;background:var(--grad);color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;';
+  createBtn.onclick=()=>{
+    const selected=Array.from(grid.querySelectorAll('[data-flowerid].sel')).map(el=>({id:el.dataset.flowerid,date:el.dataset.flowerdate}));
+    if(!selected.length){alert('Sélectionne au moins une fleur');return;}
+    createBouquet(selected);overlay.remove();
+  };
+  btns.appendChild(cancelBtn);btns.appendChild(createBtn);modal.appendChild(btns);
+  overlay.appendChild(modal);
+  overlay.onclick=e=>{if(e.target===overlay)overlay.remove();};
+  document.body.appendChild(overlay);
+}
+function createBouquet(selectedFlowers){
+  const bouquet={month:getMonthKey(),flowers:selectedFlowers,theme:state.theme||'sunset',createdAt:new Date().toISOString()};
+  state.bouquets.push(bouquet);
+  state.garden=state.garden.filter(f=>!getFlowersOfMonth().some(mf=>mf.date===f.date));
+  save();renderGarden();alert('🌸 Bouquet créé !');
+}
+function checkEndOfMonth(){if(isEndOfMonth()&&getFlowersOfMonth().length>0){setTimeout(()=>openBouquetModal(),1000);}}
+
 // ═══════════════════════════════════════════════════════
 function renderOb(){
   const tr=T();const lb=document.getElementById('ob-lang-bar');lb.innerHTML='';
@@ -2156,7 +2210,7 @@ function showToast(msg){
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 load();state.premium=!!state.premium;
 applyTheme(state.theme||'sunset');
-if(state.seen){renderHome();navTo('home');checkFlower();}else renderOb();
+if(state.seen){renderHome();navTo('home');checkFlower();checkEndOfMonth();}else renderOb();
 </script>
 </body>
 </html>
