@@ -66,7 +66,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .g-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.9);}
 .g-add-btn{font-size:12px;background:rgba(255,255,255,0.25);border:none;color:#fff;padding:5px 12px;border-radius:20px;cursor:pointer;font-family:inherit;font-weight:600;}
 .garden-area{height:100px;position:relative;overflow:hidden;transition:background 0.5s;}
-.g-flower{position:absolute;animation:popIn 0.5s ease;font-size:26px;}
+.g-flower{position:absolute;animation:popIn 0.5s ease;font-size:26px;--depth-pct:0;opacity:calc(0.4 + var(--depth-pct) * 0.006);transform:scale(calc(0.75 + var(--depth-pct) * 0.0025));transition:opacity 0.3s,transform 0.3s;}
 @keyframes popIn{0%{transform:scale(0) translateY(20px);opacity:0;}70%{transform:scale(1.2) translateY(-3px);}100%{transform:scale(1) translateY(0);opacity:1;}}
 .g-empty{display:flex;align-items:center;justify-content:center;height:100%;font-size:12px;color:#2D6A4F;font-style:italic;cursor:pointer;}
 .g-stats{background:var(--paper);display:flex;justify-content:space-around;padding:0.75rem 0;}
@@ -1055,6 +1055,7 @@ function renderGarden(){
   const w=area.offsetWidth||300;const recent=state.garden.slice(-18);
   recent.forEach((f,i)=>{
     const el=document.createElement('div');el.className='g-flower';
+    const n=recent.length;const depthPct=Math.round((i/(Math.max(n-1,1)))*100);el.style.setProperty('--depth-pct',depthPct);
     el.style.cssText='position:absolute;';
     const fDef=FLOWERS.find(fd=>fd.id===f.id)||FLOWERS[0];
     const img=document.createElement('img');
@@ -1062,7 +1063,7 @@ function renderGarden(){
     img.style.cssText='width:52px;height:52px;object-fit:contain;display:block;';
     img.alt=fDef?fDef[state.lang]||fDef.fr:'';
     el.appendChild(img);
-    const n=recent.length;const spread=Math.min(w-40,n*30);const sx=(w-spread)/2;
+    const spread=Math.min(w-40,n*30);const sx=(w-spread)/2;
     const x=n===1?w/2-17:sx+(i/(Math.max(n-1,1)))*spread;const row=Math.floor(i/9);
     el.style.left=Math.round(x)+'px';el.style.bottom=(8+row*40)+'px';area.appendChild(el);
   });
