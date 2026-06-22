@@ -1055,12 +1055,13 @@ function renderGarden(){
   const w=area.offsetWidth||300;const recent=state.garden.slice(-18);
   recent.forEach((f,i)=>{
     const el=document.createElement('div');el.className='g-flower';
-    const n=recent.length;const depthPct=Math.round((i/(Math.max(n-1,1)))*100);el.style.setProperty('--depth-pct',depthPct);
     el.style.cssText='position:absolute;';
     const fDef=FLOWERS.find(fd=>fd.id===f.id)||FLOWERS[0];
     const img=document.createElement('img');
     img.src=fDef?fDef.src:'';
-    img.style.cssText='width:52px;height:52px;object-fit:contain;display:block;';
+    const n=recent.length;const depthPct=(i/(Math.max(n-1,1)))*100;
+    const opacity=0.4+(depthPct*0.006);const scale=0.75+(depthPct*0.0025);
+    img.style.cssText='width:52px;height:52px;object-fit:contain;display:block;opacity:'+opacity+';transform:scale('+scale+');transition:opacity 0.3s,transform 0.3s;';
     img.alt=fDef?fDef[state.lang]||fDef.fr:'';
     el.appendChild(img);
     const spread=Math.min(w-40,n*30);const sx=(w-spread)/2;
