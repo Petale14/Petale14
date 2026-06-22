@@ -196,12 +196,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .stats-card{background:var(--paper);border-radius:16px;padding:1rem;border:0.5px solid var(--border);text-align:center;}
 .stats-card-num{font-size:28px;font-weight:700;color:var(--text);}
 .stats-card-lbl{font-size:12px;color:var(--text2);margin-top:3px;}
-.cal-wrap{background:var(--paper);border-radius:16px;padding:1rem;border:0.5px solid var(--border);margin-bottom:1rem;}
-.cal-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-.cal-dot{width:100%;aspect-ratio:1;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--text3);}
-.cal-dot.has{background:var(--coral);color:#fff;}
-.cal-dot.today{outline:2px solid var(--orange);outline-offset:1px;}
+.cal-wrap{background:var(--paper);border-radius:16px;padding:1.5rem;border:0.5px solid var(--border);margin-bottom:1rem;}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;}
+.cal-title{font-size:16px;font-weight:700;color:var(--text);}
+.cal-nav{display:flex;gap:8px;}
+.cal-nav-btn{background:none;border:none;cursor:pointer;color:var(--coral);font-size:20px;padding:4px;transition:all 0.2s;}
+.cal-nav-btn:active{transform:scale(0.9);}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:12px;}
+.cal-weekday{text-align:center;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;padding:6px 0;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
+.cal-day{aspect-ratio:1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--text);background:var(--bg2);position:relative;cursor:pointer;transition:all 0.2s;}
+.cal-day.other-month{color:var(--text3);opacity:0.4;}
+.cal-day.today{background:var(--coral);color:#fff;font-weight:700;}
+.cal-day.active{background:var(--coral-l);border:2px solid var(--coral);}
+.cal-day-flower{font-size:16px;position:absolute;top:-6px;right:-2px;}
 
 /* SETTINGS SCREEN */
 .settings-wrap{padding:0.75rem 1rem 2rem;}
@@ -928,7 +936,7 @@ const TR={
 // STATE
 // ═══════════════════════════════════════════════════════
 const SK='petale_v3';
-let state={lang:detectLang(),typo:'caveat',color:'#2C2010',entries:{},garden:[],todos:[],bouquets:[],seen:false,premium:false,theme:'sunset'};
+let state={lang:detectLang(),typo:'caveat',color:'#2C2010',entries:{},garden:[],todos:[],seen:false,premium:false,theme:'sunset'};
 let arrMode=false,selFlower=FLOWERS[0],currentEntryDate=null;
 let drag=null,dox=0,doy=0,rz=null,rzS=0,rzD=0;
 let recRunning=false,userStopped=false,recognition=null,accumulated='',preRecText='',activeField=null;
@@ -1511,23 +1519,55 @@ function renderStats(){
       <div class="stats-card"><div class="stats-card-num" style="color:var(--violet)">${days}</div><div class="stats-card-lbl">${tr.statDays}</div></div>
     </div>
     <div class="cal-wrap">
-      <div class="cal-title">${tr.calTitle}</div>
+      <div class="cal-header">
+        <button class="cal-nav-btn" onclick="calPrevMonth()">‹</button>
+        <div class="cal-title" id="cal-month-title"></div>
+        <button class="cal-nav-btn" onclick="calNextMonth()">›</button>
+      </div>
+      <div class="cal-weekdays">
+        <div class="cal-weekday">L</div>
+        <div class="cal-weekday">M</div>
+        <div class="cal-weekday">M</div>
+        <div class="cal-weekday">J</div>
+        <div class="cal-weekday">V</div>
+        <div class="cal-weekday">S</div>
+        <div class="cal-weekday">D</div>
+      </div>
       <div class="cal-grid" id="stats-cal"></div>
     </div>`;
-  // Calendar - last 35 days (5 weeks)
-  const cal=document.getElementById('stats-cal');
-  const todayStr=today();
-  for(let i=34;i>=0;i--){
-    const d=new Date();d.setDate(d.getDate()-i);
-    const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    const has=['gratitude','frustration','intime'].some(j=>hasEntry(state.entries[j+'__'+k]));
-    const dot=document.createElement('div');dot.className='cal-dot'+(has?' has':'')+(k===todayStr?' today':'');
-    dot.textContent=d.getDate();dot.title=fmtShort(k);cal.appendChild(dot);
-  }
+  // Calendar - full month
+  renderCalendar(new Date());
 }
 
 // ═══════════════════════════════════════════════════════
-// SETTINGS
+// CALENDAR
+// ═══════════════════════════════════════════════════════
+let calendarDate=new Date();
+function renderCalendar(date){
+  const year=date.getFullYear();const month=date.getMonth();const today=new Date();const todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  const tr=T();const monthNames=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  document.getElementById('cal-month-title').textContent=monthNames[month]+' '+year;
+  const firstDay=new Date(year,month,1).getDay();const daysInMonth=new Date(year,month+1,0).getDate();
+  const cal=document.getElementById('stats-cal');cal.innerHTML='';
+  const startDay=(firstDay===0)?6:firstDay-1;
+  for(let i=0;i<startDay;i++){const cell=document.createElement('div');cell.className='cal-day other-month';cal.appendChild(cell);}
+  for(let day=1;day<=daysInMonth;day++){
+    const dateStr=year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+    const hasEntry=['gratitude','frustration','intime'].some(j=>hasEntry(state.entries[j+'__'+dateStr]));
+    const hasFlower=state.garden.some(f=>f.date===dateStr);
+    const isActive=hasEntry||hasFlower;
+    const isToday=dateStr===todayStr;
+    const cell=document.createElement('div');
+    cell.className='cal-day'+(isToday?' today':'')+(isActive?' active':'');
+    cell.textContent=day;
+    if(isActive){const flower=document.createElement('span');flower.className='cal-day-flower';flower.textContent='🌸';cell.appendChild(flower);}
+    cal.appendChild(cell);
+  }
+  calendarDate=new Date(year,month,1);
+}
+function calPrevMonth(){const prev=new Date(calendarDate);prev.setMonth(prev.getMonth()-1);renderCalendar(prev);}
+function calNextMonth(){const next=new Date(calendarDate);next.setMonth(next.getMonth()+1);renderCalendar(next);}
+
 // ═══════════════════════════════════════════════════════
 function renderSettings(){
   const tr=T();document.getElementById('settings-title').textContent=tr.settingsTitle;
