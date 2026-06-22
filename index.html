@@ -1553,9 +1553,9 @@ function renderCalendar(date){
   for(let i=0;i<startDay;i++){const cell=document.createElement('div');cell.className='cal-day other-month';cal.appendChild(cell);}
   for(let day=1;day<=daysInMonth;day++){
     const dateStr=year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
-    const hasEntry=['gratitude','frustration','intime'].some(j=>hasEntry(state.entries[j+'__'+dateStr]));
+    const hasEntryToday=['gratitude','frustration','intime'].some(j=>hasEntry(state.entries[j+'__'+dateStr]));
     const hasFlower=state.garden.some(f=>f.date===dateStr);
-    const isActive=hasEntry||hasFlower;
+    const isActive=hasEntryToday||hasFlower;
     const isToday=dateStr===todayStr;
     const cell=document.createElement('div');
     cell.className='cal-day'+(isToday?' today':'')+(isActive?' active':'');
