@@ -1547,10 +1547,21 @@ function renderSettings(){
       <div class="settings-item-sub">Toutes les fonctionnalités débloquées</div></div>
     </div>`;
   } else {
-    premSection+=`<div style="padding:0.75rem 1rem 0.5rem;font-size:13px;color:var(--text2);">Entre ton code d'activation reçu par email :</div>
+    const stripeLabel=state.lang==='en'?'Get Premium':state.lang==='es'?'Obtener Premium':'Passer Premium ✨';
+    const stripeSubLabel=state.lang==='en'?'1.99€/month or 19.99€/year':state.lang==='es'?'1,99€/mes o 19,99€/año':'1,99€/mois ou 19,99€/an';
+    const codeLabel=state.lang==='en'?'Already have a code? Enter it here:':state.lang==='es'?'¿Ya tienes un código? Introdúcelo aquí:':'Tu as déjà un code ? Entre-le ici :';
+    const activateLabel=state.lang==='en'?'Activate':state.lang==='es'?'Activar':'Activer';
+    premSection+=`
+    <div style="padding:1rem;">
+      <button onclick="window.open('https://buy.stripe.com/8x2dR2gJQ9X19Z54TacZa00','_blank')" style="width:100%;padding:14px;border-radius:14px;border:none;background:var(--grad);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;">
+        ✨ ${stripeLabel}
+      </button>
+      <div style="text-align:center;font-size:12px;color:var(--text3);margin-top:6px;">${stripeSubLabel}</div>
+    </div>
+    <div style="padding:0 1rem 0.5rem;font-size:13px;color:var(--text2);">${codeLabel}</div>
     <div style="display:flex;gap:8px;padding:0 1rem 1rem;">
       <input id="prem-code-input" type="text" placeholder="PETALE-XXXX-XXXX" style="flex:1;padding:10px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--paper);font-size:13px;font-family:inherit;color:var(--text);outline:none;letter-spacing:0.05em;" oninput="this.value=this.value.toUpperCase()">
-      <button onclick="activatePremium()" style="padding:10px 16px;border-radius:12px;border:none;background:var(--grad);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Activer</button>
+      <button onclick="activatePremium()" style="padding:10px 16px;border-radius:12px;border:none;background:var(--grad);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">${activateLabel}</button>
     </div>`;
   }
   premSection+=`</div>`;
