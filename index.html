@@ -632,111 +632,6 @@ function findStickerDef(id){
 }
 
 
-// ═══════════════════════════════════════════════════════
-// CODES PREMIUM — liste confidentielle
-// ═══════════════════════════════════════════════════════
-const PREMIUM_CODES=[
-  'PETALE-WAJH-ZX6C',
-  'PETALE-PAGS-AGWT',
-  'PETALE-HU3A-3YLE',
-  'PETALE-8LCD-5V3Z',
-  'PETALE-T9NT-4V5U',
-  'PETALE-YBHK-CHDJ',
-  'PETALE-WMMG-J7WV',
-  'PETALE-FZFN-9WTX',
-  'PETALE-42HB-LJG8',
-  'PETALE-6LWN-7QJH',
-  'PETALE-TJU6-NH9S',
-  'PETALE-CBDW-3PCN',
-  'PETALE-9S95-AZXT',
-  'PETALE-JWDP-Q86J',
-  'PETALE-SF75-KWVE',
-  'PETALE-2T2S-ALA7',
-  'PETALE-64KB-68CR',
-  'PETALE-C22E-RTJ5',
-  'PETALE-PGTZ-GK9W',
-  'PETALE-QSDH-LUHH',
-  'PETALE-CWH6-5CHX',
-  'PETALE-GE7U-R33G',
-  'PETALE-DPPQ-ZX9D',
-  'PETALE-NL5H-GQPJ',
-  'PETALE-H7Q5-TB94',
-  'PETALE-975F-RGNB',
-  'PETALE-N9J3-QP89',
-  'PETALE-TYEK-8UTZ',
-  'PETALE-BUS5-F8CF',
-  'PETALE-VXHD-6HVV',
-  'PETALE-PUS7-GYHN',
-  'PETALE-XKL2-CQ99',
-  'PETALE-CGJ7-66MF',
-  'PETALE-4YV9-WA4K',
-  'PETALE-X8ED-DTJV',
-  'PETALE-YGWJ-R65C',
-  'PETALE-PJA2-WJZT',
-  'PETALE-PAC6-6T4U',
-  'PETALE-EEK6-356G',
-  'PETALE-HD26-PVE7',
-  'PETALE-5936-AZL7',
-  'PETALE-353J-3D55',
-  'PETALE-H4QK-3HAG',
-  'PETALE-L58J-WN9T',
-  'PETALE-8D9F-8JDP',
-  'PETALE-ZLVS-NUJY',
-  'PETALE-A7TZ-ZXMC',
-  'PETALE-XLL5-ZKKP',
-  'PETALE-NKEP-8X6V',
-  'PETALE-KTAK-PUWQ',
-  'PETALE-QGR6-3FCS',
-  'PETALE-WL42-XHGA',
-  'PETALE-HR5C-PWGY',
-  'PETALE-RHWA-22DP',
-  'PETALE-F8SB-H5Q3',
-  'PETALE-X9V8-6VZS',
-  'PETALE-4T6Z-RJHW',
-  'PETALE-2SWJ-CKJL',
-  'PETALE-TEHY-YCPT',
-  'PETALE-PGP6-UY52',
-  'PETALE-NAM2-58PZ',
-  'PETALE-TVHH-PALX',
-  'PETALE-NFQE-VANU',
-  'PETALE-AWEQ-BNGL',
-  'PETALE-2N24-JCAT',
-  'PETALE-9MW2-W28G',
-  'PETALE-AEEX-UGY2',
-  'PETALE-FVZD-48DA',
-  'PETALE-KX8N-YCYW',
-  'PETALE-D25V-D93M',
-  'PETALE-PMSL-54D8',
-  'PETALE-W4YP-Z8J3',
-  'PETALE-TRPZ-J54C',
-  'PETALE-6HQV-NA5F',
-  'PETALE-G3L6-YJA8',
-  'PETALE-CZR2-YWR3',
-  'PETALE-CHYK-URSP',
-  'PETALE-ZLYJ-JDGD',
-  'PETALE-T2FG-RZ9S',
-  'PETALE-KDGH-FATJ',
-  'PETALE-9TYE-5R5U',
-  'PETALE-RQFB-8R4N',
-  'PETALE-CWBE-UK9D',
-  'PETALE-2V3H-SQQ5',
-  'PETALE-9KVV-Z8GG',
-  'PETALE-XFFC-AQVK',
-  'PETALE-HYYQ-X73W',
-  'PETALE-X7PT-W74C',
-  'PETALE-FKZU-KDYY',
-  'PETALE-8SRC-BPLJ',
-  'PETALE-C84U-89XJ',
-  'PETALE-B2RW-7FUW',
-  'PETALE-RCML-X5LY',
-  'PETALE-K84T-QLL9',
-  'PETALE-NS9X-TPGM',
-  'PETALE-2W2G-T7QY',
-  'PETALE-D9VH-FTTC',
-  'PETALE-97QD-4RYS',
-  'PETALE-J49H-TN7S',
-  'PETALE-65J3-P7S4'
-];
 
 // ═══════════════════════════════════════════════════════
 // THEMES
@@ -936,7 +831,35 @@ const TR={
 // STATE
 // ═══════════════════════════════════════════════════════
 const SK='petale_v3';
-let state={lang:detectLang(),typo:'caveat',color:'#2C2010',entries:{},garden:[],todos:[],seen:false,premium:false,theme:'sunset'};
+let state={lang:detectLang(),typo:'caveat',color:'#2C2010',entries:{},garden:[],todos:[],seen:false,premium:false,premiumExpires:null,theme:'sunset'};
+
+// ═══════════════════════════════════════════════════════
+// PREMIUM CODES (1 mois et 1 an)
+// ═══════════════════════════════════════════════════════
+const PREMIUM_CODES_1MONTH=[
+  'PETALE-8LCD-5V3Z','PETALE-T9NT-4V5U','PETALE-YBHK-CHDJ','PETALE-WMMG-J7WV','PETALE-FZFN-9WTX',
+  'PETALE-42HB-LJG8','PETALE-6LWN-7QJH','PETALE-TJU6-NH9S','PETALE-CBDW-3PCN','PETALE-9S95-AZXT',
+  'PETALE-JWDP-Q86J','PETALE-SF75-KWVE','PETALE-2T2S-ALA7','PETALE-64KB-68CR','PETALE-C22E-RTJ5',
+  'PETALE-PGTZ-GK9W','PETALE-QSDH-LUHH','PETALE-CWH6-5CHX','PETALE-GE7U-R33G','PETALE-DPPQ-ZX9D',
+  'PETALE-NL5H-GQPJ','PETALE-H7Q5-TB94','PETALE-975F-RGNB','PETALE-N9J3-QP89','PETALE-TYEK-8UTZ',
+  'PETALE-BUS5-F8CF','PETALE-VXHD-6HVV','PETALE-PUS7-GYHN','PETALE-XKL2-CQ99','PETALE-CGJ7-66MF',
+  'PETALE-4YV9-WA4K','PETALE-X8ED-DTJV','PETALE-YGWJ-R65C','PETALE-PJA2-WJZT','PETALE-PAC6-6T4U',
+  'PETALE-EEK6-356G','PETALE-HD26-PVE7','PETALE-5936-AZL7','PETALE-353J-3D55','PETALE-H4QK-3HAG',
+  'PETALE-L58J-WN9T','PETALE-8D9F-8JDP','PETALE-ZLVS-NUJY','PETALE-A7TZ-ZXMC','PETALE-XLL5-ZKKP',
+  'PETALE-NKEP-8X6V','PETALE-KTAK-PUWQ','PETALE-QGR6-3FCS','PETALE-WL42-XHGA','PETALE-HR5C-PWGY'
+];
+const PREMIUM_CODES_1YEAR=[
+  'PETALE-RHWA-22DP','PETALE-F8SB-H5Q3','PETALE-X9V8-6VZS','PETALE-4T6Z-RJHW','PETALE-2SWJ-CKJL',
+  'PETALE-TEHY-YCPT','PETALE-PGP6-UY52','PETALE-NAM2-58PZ','PETALE-TVHH-PALX','PETALE-NFQE-VANU',
+  'PETALE-AWEQ-BNGL','PETALE-2N24-JCAT','PETALE-9MW2-W28G','PETALE-AEEX-UGY2','PETALE-FVZD-48DA',
+  'PETALE-KX8N-YCYW','PETALE-D25V-D93M','PETALE-PMSL-54D8','PETALE-W4YP-Z8J3','PETALE-TRPZ-J54C',
+  'PETALE-6HQV-NA5F','PETALE-G3L6-YJA8','PETALE-CZR2-YWR3','PETALE-CHYK-URSP','PETALE-ZLYJ-JDGD',
+  'PETALE-T2FG-RZ9S','PETALE-KDGH-FATJ','PETALE-9TYE-5R5U','PETALE-RQFB-8R4N','PETALE-CWBE-UK9D',
+  'PETALE-2V3H-SQQ5','PETALE-9KVV-Z8GG','PETALE-XFFC-AQVK','PETALE-HYYQ-X73W','PETALE-X7PT-W74C',
+  'PETALE-FKZU-KDYY','PETALE-8SRC-BPLJ','PETALE-C84U-89XJ','PETALE-B2RW-7FUW','PETALE-RCML-X5LY',
+  'PETALE-K84T-QLL9','PETALE-NS9X-TPGM','PETALE-2W2G-T7QY','PETALE-D9VH-FTTC','PETALE-97QD-4RYS',
+  'PETALE-J49H-TN7S','PETALE-65J3-P7S4'
+];
 let arrMode=false,selFlower=FLOWERS[0],currentEntryDate=null;
 let drag=null,dox=0,doy=0,rz=null,rzS=0,rzD=0;
 let recRunning=false,userStopped=false,recognition=null,accumulated='',preRecText='',activeField=null;
@@ -944,8 +867,10 @@ let currentJid=null,histJid=null,jnlFilter='all';
 
 function detectLang(){const n=(navigator.language||'fr').slice(0,2);return TR[n]?n:'fr';}
 function T(){return TR[state.lang];}
-function load(){try{const s=localStorage.getItem(SK);if(s)state={...state,...JSON.parse(s)};}catch(e){}}
+function load(){try{const s=localStorage.getItem(SK);if(s)state={...state,...JSON.parse(s)};}catch(e){}checkPremiumExpiration();}
 function save(){try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}}
+function checkPremiumExpiration(){if(state.premiumExpires&&new Date()>new Date(state.premiumExpires)){state.premium=false;state.premiumExpires=null;save();}}
+function activatePremiumCode(code){const code1m=PREMIUM_CODES_1MONTH.includes(code);const code1y=PREMIUM_CODES_1YEAR.includes(code);if(!code1m&&!code1y)return false;state.premium=true;const exp=new Date();if(code1m)exp.setMonth(exp.getMonth()+1);else exp.setFullYear(exp.getFullYear()+1);state.premiumExpires=exp.toISOString();save();return true;}
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+id).classList.add('active');
@@ -2078,8 +2003,7 @@ function addLongPressToScrap(){
 function activatePremium(){
   const input=document.getElementById('prem-code-input');if(!input)return;
   const code=input.value.trim().toUpperCase();
-  if(PREMIUM_CODES.includes(code)){
-    state.premium=true;save();
+  if(activatePremiumCode(code)){
     showToast(state.lang==='en'?'✨ Premium activated! Thank you!':state.lang==='es'?'✨ Premium activado! Gracias!':'✨ Premium activé ! Merci !');
     renderSettings();
     applyTheme(state.theme||'sunset');
