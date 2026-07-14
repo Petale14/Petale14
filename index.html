@@ -1516,10 +1516,11 @@ function renderSettings(){
     const activateLabel=state.lang==='en'?'Activate':state.lang==='es'?'Activar':'Activer';
     premSection+=`
     <div style="padding:1rem;">
-      <button onclick="window.open('https://buy.stripe.com/8x2dR2gJQ9X19Z54TacZa00','_blank')" style="width:100%;padding:14px;border-radius:14px;border:none;background:var(--grad);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;">
-        ✨ ${stripeLabel}
-      </button>
-      <div style="text-align:center;font-size:12px;color:var(--text3);margin-top:6px;">${stripeSubLabel}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <button onclick="window.open('https://buy.stripe.com/8x2dR2gJQ9X19Z54TacZa00','_blank')" style="padding:12px;border-radius:12px;border:none;background:var(--grad);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;">✨ 1.99€/mois</button>
+        <button onclick="window.open('https://buy.stripe.com/aFa4gs65cglp8V1gBScZa01','_blank')" style="padding:12px;border-radius:12px;border:none;background:var(--coral);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;">✨ 19.99€/an</button>
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--text3);">Passer Premium et recevoir un code</div>
     </div>
     <div style="padding:0 1rem 0.5rem;font-size:13px;color:var(--text2);">${codeLabel}</div>
     <div style="display:flex;gap:8px;padding:0 1rem 1rem;">
