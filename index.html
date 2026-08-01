@@ -891,7 +891,7 @@ function totalWords(){return Object.values(state.entries).filter(hasEntry).reduc
 // NAVIGATION
 // ═══════════════════════════════════════════════════════
 function navTo(id){
-  show(id);
+  show(id);clearToast();
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('nav-'+id)?.classList.add('active');
   const tr=T();
@@ -1420,7 +1420,7 @@ function filterJournal(){
       <div class="jnl-card-meta">
         ${photoCount?`<span>📷 ${photoCount}</span>`:''}
         ${stickerCount?`<span>✨ ${stickerCount}</span>`:''}
-        ${entry.slots?.filter(s=>s).length?`<span>✍️ ${entry.slots.filter(s=>s).length} pensées</span>`:''}
+        ${entry.slots?.filter(s=>s).length?`<span>✍️ ${entry.slots.filter(s=>s).length} ${state.lang==='en'?'thoughts':state.lang==='es'?'pensamientos':'pensées'}</span>`:''}
       </div>`;
     card.onclick=()=>openJournalView(jid,date,all.map(e=>({jid:e.jid,date:e.date})));
     entries.appendChild(card);
@@ -1470,7 +1470,7 @@ function renderStats(){
 let calendarDate=new Date();
 function renderCalendar(date){
   const year=date.getFullYear();const month=date.getMonth();const today=new Date();const todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
-  const tr=T();const monthNames=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const tr=T();const monthNames=state.lang==='en'?['January','February','March','April','May','June','July','August','September','October','November','December']:state.lang==='es'?['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']:['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
   document.getElementById('cal-month-title').textContent=monthNames[month]+' '+year;
   const firstDay=new Date(year,month,1).getDay();const daysInMonth=new Date(year,month+1,0).getDate();
   const cal=document.getElementById('stats-cal');cal.innerHTML='';
@@ -1502,7 +1502,7 @@ function renderSettings(){
 
   // Section Premium / Activation
   let premSection=`<div class="settings-section">
-    <div class="settings-section-title">${isPrem?'✨ Premium actif':'Mon compte'}</div>`;
+    <div class="settings-section-title">${isPrem?'✨ '+(state.lang==='en'?'Premium active':state.lang==='es'?'Premium activo':'Premium actif'):(state.lang==='en'?'My account':state.lang==='es'?'Mi cuenta':'Mon compte')}</div>`;
   if(isPrem){
     premSection+=`<div class="settings-item" style="background:linear-gradient(135deg,var(--coral-l),var(--orange-l));border-color:var(--coral);">
       <div class="settings-item-ico" style="background:var(--grad);font-size:20px;">✨</div>
@@ -1517,10 +1517,10 @@ function renderSettings(){
     premSection+=`
     <div style="padding:1rem;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-        <button onclick="window.open('https://buy.stripe.com/8x2dR2gJQ9X19Z54TacZa00','_blank')" style="padding:12px;border-radius:12px;border:none;background:var(--grad);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;">✨ 1.99€/mois</button>
-        <button onclick="window.open('https://buy.stripe.com/aFa4gs65cglp8V1gBScZa01','_blank')" style="padding:12px;border-radius:12px;border:none;background:var(--coral);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;">✨ 19.99€/an</button>
+        <button onclick="window.open('https://buy.stripe.com/8x2dR2gJQ9X19Z54TacZa00','_blank')" style="padding:12px;border-radius:12px;border:none;background:var(--grad);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;">✨ 1.99€/${state.lang==='en'?'month':state.lang==='es'?'mes':'mois'}</button>
+        <button onclick="window.open('https://buy.stripe.com/aFa4gs65cglp8V1gBScZa01','_blank')" style="padding:12px;border-radius:12px;border:none;background:var(--coral);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;">✨ 19.99€/${state.lang==='en'?'year':state.lang==='es'?'año':'an'}</button>
       </div>
-      <div style="text-align:center;font-size:12px;color:var(--text3);">Passer Premium et recevoir un code</div>
+      <div style="text-align:center;font-size:12px;color:var(--text3);">${state.lang==='en'?'Go Premium and receive a code':state.lang==='es'?'Hazte Premium y recibe un código':'Passer Premium et recevoir un code'}</div>
     </div>
     <div style="padding:0 1rem 0.5rem;font-size:13px;color:var(--text2);">${codeLabel}</div>
     <div style="display:flex;gap:8px;padding:0 1rem 1rem;">
@@ -1538,7 +1538,7 @@ function renderSettings(){
     return `<div onclick="${clickFn}" style="border-radius:12px;padding:10px;cursor:pointer;border:2px solid ${active?'var(--coral)':'var(--border)'};background:${active?'var(--coral-l)':'var(--paper)'};text-align:center;position:relative;${locked?'opacity:0.5;':''}">
       <div style="font-size:24px;">${th.emoji}</div>
       <div style="font-size:12px;font-weight:600;color:var(--text);margin-top:4px;">${th.name}</div>
-      ${active?'<div style="font-size:10px;color:var(--coral);font-weight:700;margin-top:2px;">✓ Actif</div>':'<div style="font-size:10px;color:var(--text3);margin-top:2px;">'+(locked?'🔒 Premium':'Appuyer pour choisir')+'</div>'}
+      ${active?`<div style="font-size:10px;color:var(--coral);font-weight:700;margin-top:2px;">✓ ${state.lang==='en'?'Active':state.lang==='es'?'Activo':'Actif'}</div>`:`<div style="font-size:10px;color:var(--text3);margin-top:2px;">${locked?'🔒 Premium':(state.lang==='en'?'Tap to choose':state.lang==='es'?'Pulsar para elegir':'Appuyer pour choisir')}</div>`}
     </div>`;
   }).join('');
 
@@ -1718,7 +1718,7 @@ function openHistory(jid){
   dates.forEach(d=>{
     const e=state.entries[jid+'__'+d];const isToday=d===today();
     const card=document.createElement('div');card.className='hist-date-card';
-    card.innerHTML=`<div class="hist-date-label" style="color:${j.dk}">${fmtDate(d)}${isToday?`<span class="hist-badge" style="background:${j.bg};color:${j.acc};">Aujourd'hui</span>`:''}</div><div class="hist-preview">${e.text?.substring(0,80)||'—'}</div>`;
+    card.innerHTML=`<div class="hist-date-label" style="color:${j.dk}">${fmtDate(d)}${isToday?`<span class="hist-badge" style="background:${j.bg};color:${j.acc};">${state.lang==='en'?'Today':state.lang==='es'?'Hoy':'Aujourd\'hui'}</span>`:''}</div><div class="hist-preview">${e.text?.substring(0,80)||'—'}</div>`;
     card.onclick=()=>openJ(jid,d);list.appendChild(card);
   });
   show('history');
@@ -2011,7 +2011,7 @@ function activatePremium(){
   } else {
     showToast(state.lang==='en'?'❌ Invalid code — check your email':state.lang==='es'?'❌ Código inválido — revisa tu email':'❌ Code invalide — vérifie ton email');
     input.style.borderColor='#FF4444';
-    setTimeout(()=>input.style.borderColor='',2000);
+    setTimeout(()=>{input.style.borderColor='';input.value='';input.focus();},2000);
   }
 }
 
@@ -2107,10 +2107,10 @@ function generatePDF(selectedJournals){
 // ═══════════════════════════════════════════════════════
 function showToast(msg){
   const t=document.getElementById('save-toast');if(!t)return;
-  const tr=T();
-  t.textContent=msg||(tr.lang==='en'?'✅ Saved!':tr.lang==='es'?'✅ Guardado!':'✅ Enregistré !');
-  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);
+  t.textContent=msg||(state.lang==='en'?'✅ Saved!':state.lang==='es'?'✅ Guardado!':'✅ Enregistré !');
+  t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),3000);
 }
+function clearToast(){const t=document.getElementById('save-toast');if(!t)return;clearTimeout(t._timer);t.classList.remove('show');}
 
 // ═══════════════════════════════════════════════════════
 // PWA + INIT
