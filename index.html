@@ -314,7 +314,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .radial-item.show{transform:scale(1);}
 .radial-item img{width:34px;height:34px;object-fit:contain;pointer-events:none;}
 
-.toast{position:fixed;bottom:calc(var(--nav-h) + 12px);left:50%;transform:translateX(-50%);background:#2C2010;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;}
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#2C2010;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:100;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;}
 
 /* PRINT STYLES */
@@ -746,7 +746,7 @@ const TR={
     settingsTitle:'Réglages',settingLang:'Langue',settingLangSub:'Français · English · Español',
     settingPDF:'Exporter en PDF',settingPDFSub:'Imprimer ou sauvegarder ton journal',
     settingRemind:'Rappel quotidien',settingRemindSub:'Être notifiée chaque jour pour écrire',
-    settingAbout:'À propos de Pétale',settingAboutSub:'Version 1.0.0.8 — Fait avec 🌸',
+    settingAbout:'À propos de Pétale',settingAboutSub:'Version 1.0.0.9 — Fait avec 🌸',
     histTitle:'Mes entrées',noEntries:'Aucune entrée pour ce journal.',
     previewClose:'Fermer l\'aperçu',
     arrange:'Déplacer',arrangeDone:'OK',arrangeHint:'Textarea désactivée — déplace librement.',
@@ -778,7 +778,7 @@ const TR={
     settingsTitle:'Settings',settingLang:'Language',settingLangSub:'Français · English · Español',
     settingPDF:'Export as PDF',settingPDFSub:'Print or save your journal',
     settingRemind:'Daily reminder',settingRemindSub:'Get notified every day to write',
-    settingAbout:'About Petal',settingAboutSub:'Version 1.0.0.8 — Made with 🌸',
+    settingAbout:'About Petal',settingAboutSub:'Version 1.0.0.9 — Made with 🌸',
     histTitle:'My entries',noEntries:'No entries for this journal.',
     previewClose:'Close preview',
     arrange:'Arrange',arrangeDone:'Done',arrangeHint:'Text disabled — move items freely.',
@@ -808,7 +808,7 @@ const TR={
     settingsTitle:'Ajustes',settingLang:'Idioma',settingLangSub:'Français · English · Español',
     settingPDF:'Exportar PDF',settingPDFSub:'Imprimir o guardar tu diario',
     settingRemind:'Recordatorio diario',settingRemindSub:'Recibe un aviso cada día para escribir',
-    settingAbout:'Acerca de Pétalo',settingAboutSub:'Versión 1.0.0.8 — Hecho con 🌸',
+    settingAbout:'Acerca de Pétalo',settingAboutSub:'Versión 1.0.0.9 — Hecho con 🌸',
     histTitle:'Mis entradas',noEntries:'Sin entradas para este diario.',
     previewClose:'Cerrar vista previa',
     arrange:'Mover',arrangeDone:'Listo',arrangeHint:'Texto desactivado — mueve libremente.',
@@ -1052,7 +1052,7 @@ function openJ(id,date){
 function curTy(){return TYPOS.find(t=>t.id===state.typo)||TYPOS[0];}
 function renderTypoPicker(pfx,acc){
   const c=document.getElementById('typo-'+pfx);if(!c)return;c.innerHTML='';
-  TYPOS.forEach(ty=>{const b=document.createElement('button');b.className='t-btn'+(ty.id===state.typo?' active':'');if(ty.id===state.typo)b.style.borderColor=acc;b.style.fontFamily=ty.f;b.dataset.id=ty.id;b.textContent=ty.s;b.onclick=()=>{state.typo=ty.id;save();applyTy();renderTypoPicker(pfx,acc);};c.appendChild(b);});
+  TYPOS.forEach(ty=>{const b=document.createElement('button');b.className='t-btn'+(ty.id===state.typo?' active':'');if(ty.id===state.typo)b.style.borderColor=acc;b.style.fontFamily=ty.f;b.dataset.id=ty.id;b.textContent=state.lang==='en'?'Today…':state.lang==='es'?'Hoy…':ty.s;b.onclick=()=>{state.typo=ty.id;save();applyTy();renderTypoPicker(pfx,acc);};c.appendChild(b);});
 }
 function renderColorPicker(pfx,acc){
   const c=document.getElementById('cr-'+pfx);if(!c)return;c.innerHTML='';
@@ -1366,6 +1366,7 @@ function saveJ(jid){
     state.entries[ek]={text:document.getElementById('i-ta').value.trim(),photos,stickers,typo:state.typo,color:state.color};
   } else if(jid==='gratitude'){
     const slots=[0,1,2].map(i=>document.getElementById(`g-s${i}`)?.value.trim()||'');
+    if(!slots.some(s=>s)){showToast(state.lang==='en'?'✏️ Write at least one thought!':state.lang==='es'?'✏️ ¡Escribe al menos un pensamiento!':'✏️ Écris au moins une pensée !');return;}
     state.entries[ek]={text:slots.filter(s=>s).join(' | '),slots,typo:state.typo,color:state.color};
   } else {
     const slots=[0,1,2].map(i=>document.getElementById(`f-s${i}`)?.value.trim()||'');
@@ -1449,14 +1450,7 @@ function renderStats(){
         <div class="cal-title" id="cal-month-title"></div>
         <button class="cal-nav-btn" onclick="calNextMonth()">›</button>
       </div>
-      <div class="cal-weekdays">
-        <div class="cal-weekday">L</div>
-        <div class="cal-weekday">M</div>
-        <div class="cal-weekday">M</div>
-        <div class="cal-weekday">J</div>
-        <div class="cal-weekday">V</div>
-        <div class="cal-weekday">S</div>
-        <div class="cal-weekday">D</div>
+      <div class="cal-weekdays" id="cal-weekdays">
       </div>
       <div class="cal-grid" id="stats-cal"></div>
     </div>`;
@@ -1471,6 +1465,8 @@ let calendarDate=new Date();
 function renderCalendar(date){
   const year=date.getFullYear();const month=date.getMonth();const today=new Date();const todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
   const tr=T();const monthNames=state.lang==='en'?['January','February','March','April','May','June','July','August','September','October','November','December']:state.lang==='es'?['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']:['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const weekDays=state.lang==='en'?['M','T','W','T','F','S','S']:state.lang==='es'?['L','M','X','J','V','S','D']:['L','M','M','J','V','S','D'];
+  const wd=document.getElementById('cal-weekdays');if(wd){wd.innerHTML=weekDays.map(d=>`<div class="cal-weekday">${d}</div>`).join('');}
   document.getElementById('cal-month-title').textContent=monthNames[month]+' '+year;
   const firstDay=new Date(year,month,1).getDay();const daysInMonth=new Date(year,month+1,0).getDate();
   const cal=document.getElementById('stats-cal');cal.innerHTML='';
@@ -1566,12 +1562,12 @@ function renderSettings(){
       </div>
       <div class="settings-item" style="margin-top:6px;">
         <div class="settings-item-ico" style="background:var(--coral-l)">☁️</div>
-        <div style="flex:1"><div class="settings-item-title">Sauvegarde cloud</div><div class="settings-item-sub">Synchronise tes journaux</div></div>
+        <div style="flex:1"><div class="settings-item-title">${state.lang==='en'?'Cloud backup':state.lang==='es'?'Copia de seguridad':'Sauvegarde cloud'}</div><div class="settings-item-sub">${state.lang==='en'?'Sync your journals':state.lang==='es'?'Sincroniza tus diarios':'Synchronise tes journaux'}</div></div>
         <span class="settings-badge v2">v2</span>
       </div>
     </div>
     <div class="settings-section">
-      <div class="settings-section-title">Général</div>
+      <div class="settings-section-title">${state.lang==='en'?'General':state.lang==='es'?'General':'Général'}</div>
       <div class="settings-item" onclick="goOb()">
         <div class="settings-item-ico" style="background:var(--coral-l)">🌍</div>
         <div><div class="settings-item-title">${tr.settingLang}</div><div class="settings-item-sub">${tr.settingLangSub}</div></div>
@@ -1808,7 +1804,7 @@ function renderTodo(){
           </svg>`:''}
         </div>
         <span class="todo-text ${item.done?'done':''}">${item.text}</span>
-        <button class="todo-del" onclick="deleteTodo(${i})" aria-label="Supprimer"><i class="ti ti-trash" aria-hidden="true"></i></button>`;
+        <button class="todo-del" onclick="deleteTodo(${i})" aria-label="${state.lang==='en'?'Delete':state.lang==='es'?'Eliminar':'Supprimer'}"><i class="ti ti-trash" aria-hidden="true"></i></button>`;
       list.appendChild(el);
     });
   }
@@ -2119,6 +2115,29 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(
 load();state.premium=!!state.premium;
 applyTheme(state.theme||'sunset');
 if(state.seen){renderHome();navTo('home');checkFlower();}else renderOb();
+
+// ═══════════════════════════════════════════════════════
+// ANDROID BACK BUTTON
+// ═══════════════════════════════════════════════════════
+document.addEventListener('backbutton',function(e){
+  e.preventDefault();
+  const active=document.querySelector('.screen.active');
+  if(!active)return;
+  const id=active.id.replace('screen-','');
+  const journalScreens=['gratitude','frustration','intime','journal-view','history','journal'];
+  if(journalScreens.includes(id)){navTo('home');}
+  else if(id==='stats'||id==='todo'||id==='settings'){navTo('home');}
+},false);
+
+// Fallback via popstate pour WebView
+history.pushState(null,null,window.location.href);
+window.addEventListener('popstate',function(){
+  history.pushState(null,null,window.location.href);
+  const active=document.querySelector('.screen.active');
+  if(!active)return;
+  const id=active.id.replace('screen-','');
+  if(id!=='home'&&id!=='ob'){navTo('home');}
+});
 </script>
 </body>
 </html>
