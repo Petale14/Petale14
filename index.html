@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Pétale">
 <title>Pétale — Ton journal vocal & créatif</title>
 <link rel="manifest" href="manifest.json">
+<script src="capacitor.js" onerror="console.log('Capacitor not available, using localStorage')"></script>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Dancing+Script:wght@400;600&family=Pacifico&family=Shadows+Into+Light&family=Patrick+Hand&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
@@ -746,7 +747,7 @@ const TR={
     settingsTitle:'Réglages',settingLang:'Langue',settingLangSub:'Français · English · Español',
     settingPDF:'Exporter en PDF',settingPDFSub:'Imprimer ou sauvegarder ton journal',
     settingRemind:'Rappel quotidien',settingRemindSub:'Être notifiée chaque jour pour écrire',
-    settingAbout:'À propos de Pétale',settingAboutSub:'Version 1.0.0.9 — Fait avec 🌸',
+    settingAbout:'À propos de Pétale',settingAboutSub:'Version 1.0.0.12 — Fait avec 🌸',
     histTitle:'Mes entrées',noEntries:'Aucune entrée pour ce journal.',
     previewClose:'Fermer l\'aperçu',
     arrange:'Déplacer',arrangeDone:'OK',arrangeHint:'Textarea désactivée — déplace librement.',
@@ -778,7 +779,7 @@ const TR={
     settingsTitle:'Settings',settingLang:'Language',settingLangSub:'Français · English · Español',
     settingPDF:'Export as PDF',settingPDFSub:'Print or save your journal',
     settingRemind:'Daily reminder',settingRemindSub:'Get notified every day to write',
-    settingAbout:'About Petal',settingAboutSub:'Version 1.0.0.9 — Made with 🌸',
+    settingAbout:'About Petal',settingAboutSub:'Version 1.0.0.12 — Made with 🌸',
     histTitle:'My entries',noEntries:'No entries for this journal.',
     previewClose:'Close preview',
     arrange:'Arrange',arrangeDone:'Done',arrangeHint:'Text disabled — move items freely.',
@@ -808,7 +809,7 @@ const TR={
     settingsTitle:'Ajustes',settingLang:'Idioma',settingLangSub:'Français · English · Español',
     settingPDF:'Exportar PDF',settingPDFSub:'Imprimir o guardar tu diario',
     settingRemind:'Recordatorio diario',settingRemindSub:'Recibe un aviso cada día para escribir',
-    settingAbout:'Acerca de Pétalo',settingAboutSub:'Versión 1.0.0.9 — Hecho con 🌸',
+    settingAbout:'Acerca de Pétalo',settingAboutSub:'Versión 1.0.0.12 — Hecho con 🌸',
     histTitle:'Mis entradas',noEntries:'Sin entradas para este diario.',
     previewClose:'Cerrar vista previa',
     arrange:'Mover',arrangeDone:'Listo',arrangeHint:'Texto desactivado — mueve libremente.',
@@ -867,8 +868,64 @@ let currentJid=null,histJid=null,jnlFilter='all';
 
 function detectLang(){const n=(navigator.language||'fr').slice(0,2);return TR[n]?n:'fr';}
 function T(){return TR[state.lang];}
-function load(){try{const s=localStorage.getItem(SK);if(s)state={...state,...JSON.parse(s)};}catch(e){}checkPremiumExpiration();}
-function save(){try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}}
+// ═══════════════════════════════════════════════════════
+// STORAGE — Capacitor Preferences avec fallback localStorage
+// ═══════════════════════════════════════════════════════
+async function saveAsync(){
+  try{
+    const data=JSON.stringify(state);
+    if(window.Capacitor?.Plugins?.Preferences){
+      await window.Capacitor.Plugins.Preferences.set({key:SK,value:data});
+    }
+    // Toujours sauvegarder aussi dans localStorage comme backup
+    localStorage.setItem(SK,data);
+  }catch(e){try{localStorage.setItem(SK,JSON.stringify(state));}catch(e2){}}
+}
+function save(){
+  // Synchrone pour compatibilité + async pour Capacitor
+  try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}
+  saveAsync().catch(()=>{});
+}
+async function loadAsync(){
+  try{
+    if(window.Capacitor?.Plugins?.Preferences){
+      const result=await window.Capacitor.Plugins.Preferences.get({key:SK});
+      if(result?.value){
+        const parsed=JSON.parse(result.value);
+        state={...state,...parsed};
+        checkPremiumExpiration();
+        return;
+      }
+    }
+  }catch(e){}
+  // Fallback localStorage
+  try{const s=localStorage.getItem(SK);if(s)state={...state,...JSON.parse(s)};}catch(e){}
+  checkPremiumExpiration();
+}
+function load(){
+  // Charger depuis localStorage d'abord (synchrone)
+  try{const s=localStorage.getItem(SK);if(s)state={...state,...JSON.parse(s)};}catch(e){}
+  checkPremiumExpiration();
+  // Puis essayer Capacitor Preferences (async) et merger si plus récent
+  if(window.Capacitor?.Plugins?.Preferences){
+    window.Capacitor.Plugins.Preferences.get({key:SK}).then(result=>{
+      if(result?.value){
+        try{
+          const parsed=JSON.parse(result.value);
+          // Merger intelligemment — prendre le plus complet
+          const capEntries=Object.keys(parsed.entries||{}).length;
+          const localEntries=Object.keys(state.entries||{}).length;
+          if(capEntries>=localEntries){
+            state={...state,...parsed};
+            checkPremiumExpiration();
+            // Re-render si déjà affiché
+            if(state.seen)renderHome();
+          }
+        }catch(e){}
+      }
+    }).catch(()=>{});
+  }
+}
 function checkPremiumExpiration(){if(state.premiumExpires&&new Date()>new Date(state.premiumExpires)){state.premium=false;state.premiumExpires=null;save();}}
 function activatePremiumCode(code){const code1m=PREMIUM_CODES_1MONTH.includes(code);const code1y=PREMIUM_CODES_1YEAR.includes(code);if(!code1m&&!code1y)return false;state.premium=true;const exp=new Date();if(code1m)exp.setMonth(exp.getMonth()+1);else exp.setFullYear(exp.getFullYear()+1);state.premiumExpires=exp.toISOString();save();return true;}
 function show(id){
@@ -926,15 +983,41 @@ function startVoice(fid){
 function startSession(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){recRunning=false;updateRecUI(false);return;}
-  recognition=new SR();recognition.lang=T().voice;recognition.interimResults=true;recognition.continuous=false;
+  recognition=new SR();
+  recognition.lang=T().voice;
+  recognition.interimResults=true;
+  recognition.continuous=true; // continuous=true pour Android WebView
+  recognition.maxAlternatives=1;
   recognition.onresult=e=>{
     let interim='';
-    for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)accumulated+=t+' ';else interim=t;}
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal){accumulated+=t+' ';}
+      else{interim=t;}
+    }
     const ta=document.getElementById(activeField);
-    if(ta){const sep=preRecText&&!preRecText.endsWith(' ')&&accumulated?' ':'';ta.value=preRecText+sep+accumulated+interim;ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';}
+    if(ta){
+      const sep=preRecText&&!preRecText.endsWith(' ')&&(accumulated||interim)?' ':'';
+      ta.value=preRecText+sep+accumulated+interim;
+      ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
+    }
   };
-  recognition.onend=()=>{if(!userStopped&&recRunning)setTimeout(startSession,150);else{recRunning=false;updateRecUI(false);}};
-  recognition.onerror=e=>{if(!userStopped&&recRunning&&(e.error==='no-speech'||e.error==='audio-capture'))setTimeout(startSession,200);else{recRunning=false;updateRecUI(false);}};
+  recognition.onend=()=>{
+    if(!userStopped&&recRunning){
+      // Redémarrer après un court délai pour Android
+      setTimeout(()=>{
+        if(!userStopped&&recRunning){
+          try{recognition.start();}catch(e){setTimeout(startSession,300);}
+        }
+      },100);
+    }else{recRunning=false;updateRecUI(false);}
+  };
+  recognition.onerror=e=>{
+    if(e.error==='not-allowed'){recRunning=false;updateRecUI(false);return;}
+    if(!userStopped&&recRunning&&(e.error==='no-speech'||e.error==='audio-capture'||e.error==='network')){
+      setTimeout(startSession,300);
+    }else{recRunning=false;updateRecUI(false);}
+  };
   try{recognition.start();}catch(e){setTimeout(startSession,300);}
 }
 function stopVoice(){userStopped=true;recRunning=false;if(recognition)try{recognition.stop();}catch(e){}updateRecUI(false);}
@@ -1011,8 +1094,8 @@ function renderOb(){
 function startApp(){state.seen=true;save();renderHome();navTo('home');checkFlower();}
 function goOb(){show('ob');renderOb();}
 function saveAndGoHome(jid){
-  saveJ(jid);
-  setTimeout(()=>goHome(),300);
+  stopVoice();
+  setTimeout(()=>{saveJ(jid);setTimeout(()=>goHome(),300);},400);
 }
 
 function goHome(){stopVoice();navTo('home');}
