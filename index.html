@@ -986,37 +986,39 @@ function startSession(){
   recognition=new SR();
   recognition.lang=T().voice;
   recognition.interimResults=true;
-  recognition.continuous=true; // continuous=true pour Android WebView
+  recognition.continuous=false;
   recognition.maxAlternatives=1;
+  // Snapshot du texte accumulé au début de cette session
+  const sessionBase=preRecText+(preRecText&&accumulated&&!preRecText.endsWith(' ')?' ':'')+accumulated;
   recognition.onresult=e=>{
     let interim='';
+    let sessionFinal='';
     for(let i=e.resultIndex;i<e.results.length;i++){
       const t=e.results[i][0].transcript;
-      if(e.results[i].isFinal){accumulated+=t+' ';}
+      if(e.results[i].isFinal){sessionFinal+=t+' ';}
       else{interim=t;}
     }
+    if(sessionFinal){accumulated+=(accumulated&&!accumulated.endsWith(' ')?' ':'')+sessionFinal.trim()+' ';}
     const ta=document.getElementById(activeField);
     if(ta){
-      const sep=preRecText&&!preRecText.endsWith(' ')&&(accumulated||interim)?' ':'';
+      const sep=preRecText&&!preRecText.endsWith(' ')&&accumulated?' ':'';
       ta.value=preRecText+sep+accumulated+interim;
       ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
     }
   };
   recognition.onend=()=>{
     if(!userStopped&&recRunning){
-      // Redémarrer après un court délai pour Android
       setTimeout(()=>{
         if(!userStopped&&recRunning){
           try{recognition.start();}catch(e){setTimeout(startSession,300);}
         }
-      },100);
+      },150);
     }else{recRunning=false;updateRecUI(false);}
   };
   recognition.onerror=e=>{
     if(e.error==='not-allowed'){recRunning=false;updateRecUI(false);return;}
-    if(!userStopped&&recRunning&&(e.error==='no-speech'||e.error==='audio-capture'||e.error==='network')){
-      setTimeout(startSession,300);
-    }else{recRunning=false;updateRecUI(false);}
+    if(!userStopped&&recRunning){setTimeout(()=>{if(!userStopped&&recRunning)try{recognition.start();}catch(e2){setTimeout(startSession,300);}},300);}
+    else{recRunning=false;updateRecUI(false);}
   };
   try{recognition.start();}catch(e){setTimeout(startSession,300);}
 }
@@ -1094,8 +1096,8 @@ function renderOb(){
 function startApp(){state.seen=true;save();renderHome();navTo('home');checkFlower();}
 function goOb(){show('ob');renderOb();}
 function saveAndGoHome(jid){
-  stopVoice();
-  setTimeout(()=>{saveJ(jid);setTimeout(()=>goHome(),300);},400);
+  saveJ(jid);
+  setTimeout(()=>goHome(),300);
 }
 
 function goHome(){stopVoice();navTo('home');}
