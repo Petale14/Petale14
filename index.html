@@ -984,23 +984,36 @@ function startSession(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){recRunning=false;updateRecUI(false);return;}
   recognition=new SR();
-  // Langue optimisée pour meilleure ponctuation et reconnaissance
   const lang=state.lang==='en'?'en-US':state.lang==='es'?'es-ES':'fr-FR';
   recognition.lang=lang;
   recognition.interimResults=true;
   recognition.continuous=false;
   recognition.maxAlternatives=1;
+  let lastInterim='';
   recognition.onresult=e=>{
-    let interim='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      const t=e.results[i][0].transcript;
-      if(e.results[i].isFinal)accumulated+=t+' ';
-      else interim=t;
+    const lastResult=e.results[e.results.length-1];
+    if(!lastResult)return;
+    if(lastResult.isFinal){
+      const t=lastResult[0].transcript.trim();
+      if(t){accumulated+=(accumulated&&!accumulated.endsWith(' ')?' ':'')+t+' ';}
+      lastInterim='';
+    } else {
+      // L'interim REMPLACE l'ancien interim, il ne s'ajoute pas !
+      lastInterim=lastResult[0].transcript;
     }
     const ta=document.getElementById(activeField);
     if(ta){
-      const sep=preRecText&&!preRecText.endsWith(' ')&&(accumulated||interim)?' ':'';
-      ta.value=preRecText+sep+accumulated+interim;
+      // preRecText + accumulated (tout ce qui est final) + lastInterim (en cours)
+      let display=preRecText;
+      if(accumulated){
+        if(display&&!display.endsWith(' '))display+=' ';
+        display+=accumulated;
+      }
+      if(lastInterim){
+        if(display&&!display.endsWith(' '))display+=' ';
+        display+=lastInterim;
+      }
+      ta.value=display;
       ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
     }
   };
