@@ -984,42 +984,28 @@ function startSession(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){recRunning=false;updateRecUI(false);return;}
   recognition=new SR();
-  recognition.lang=T().voice;
-  recognition.interimResults=false; // PAS de résultats intermédiaires sur Android !
+  // Langue optimisée pour meilleure ponctuation et reconnaissance
+  const lang=state.lang==='en'?'en-US':state.lang==='es'?'es-ES':'fr-FR';
+  recognition.lang=lang;
+  recognition.interimResults=true;
   recognition.continuous=false;
   recognition.maxAlternatives=1;
   recognition.onresult=e=>{
-    // Seulement les résultats finaux
+    let interim='';
     for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal){
-        const t=e.results[i][0].transcript.trim();
-        if(t){accumulated+=(accumulated?' ':'')+t;}
-      }
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal)accumulated+=t+' ';
+      else interim=t;
     }
     const ta=document.getElementById(activeField);
     if(ta){
-      const sep=preRecText&&accumulated&&!preRecText.endsWith(' ')?' ':'';
-      ta.value=preRecText+sep+accumulated;
+      const sep=preRecText&&!preRecText.endsWith(' ')&&(accumulated||interim)?' ':'';
+      ta.value=preRecText+sep+accumulated+interim;
       ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
     }
   };
-  recognition.onend=()=>{
-    if(!userStopped&&recRunning){
-      const ta=document.getElementById(activeField);
-      if(ta)preRecText=ta.value;
-      accumulated='';
-      setTimeout(startSession,200);
-    }else{recRunning=false;updateRecUI(false);}
-  };
-  recognition.onerror=e=>{
-    if(e.error==='not-allowed'){recRunning=false;updateRecUI(false);return;}
-    if(!userStopped&&recRunning){
-      const ta=document.getElementById(activeField);
-      if(ta)preRecText=ta.value;
-      accumulated='';
-      setTimeout(startSession,300);
-    }else{recRunning=false;updateRecUI(false);}
-  };
+  recognition.onend=()=>{if(!userStopped&&recRunning)setTimeout(startSession,150);else{recRunning=false;updateRecUI(false);}};
+  recognition.onerror=e=>{if(!userStopped&&recRunning&&(e.error==='no-speech'||e.error==='audio-capture'))setTimeout(startSession,200);else{recRunning=false;updateRecUI(false);}};
   try{recognition.start();}catch(e){setTimeout(startSession,300);}
 }
 function stopVoice(){userStopped=true;recRunning=false;if(recognition)try{recognition.stop();}catch(e){}updateRecUI(false);}
