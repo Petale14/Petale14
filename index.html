@@ -989,35 +989,37 @@ function startSession(){
   recognition.interimResults=true;
   recognition.continuous=false;
   recognition.maxAlternatives=1;
+  // On stocke le texte actuel du champ comme point de départ
+  const ta2=document.getElementById(activeField);
+  const sessionBase=ta2?ta2.value:preRecText+(preRecText&&accumulated?' ':'')+accumulated;
   let lastInterim='';
   recognition.onresult=e=>{
     const lastResult=e.results[e.results.length-1];
     if(!lastResult)return;
-    if(lastResult.isFinal){
-      const t=lastResult[0].transcript.trim();
-      if(t){accumulated+=(accumulated&&!accumulated.endsWith(' ')?' ':'')+t+' ';}
-      lastInterim='';
-    } else {
-      // L'interim REMPLACE l'ancien interim, il ne s'ajoute pas !
-      lastInterim=lastResult[0].transcript;
-    }
     const ta=document.getElementById(activeField);
-    if(ta){
-      // preRecText + accumulated (tout ce qui est final) + lastInterim (en cours)
-      let display=preRecText;
-      if(accumulated){
-        if(display&&!display.endsWith(' '))display+=' ';
-        display+=accumulated;
+    if(lastResult.isFinal){
+      // Ajoute seulement les nouveaux mots finaux à sessionBase
+      const t=lastResult[0].transcript.trim();
+      accumulated=(sessionBase?sessionBase+' ':'')+t;
+      lastInterim='';
+      if(ta){ta.value=accumulated;ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';}
+    } else {
+      lastInterim=lastResult[0].transcript;
+      if(ta){
+        ta.value=sessionBase+(sessionBase&&lastInterim?' ':'')+lastInterim;
+        ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
       }
-      if(lastInterim){
-        if(display&&!display.endsWith(' '))display+=' ';
-        display+=lastInterim;
-      }
-      ta.value=display;
-      ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
     }
   };
-  recognition.onend=()=>{if(!userStopped&&recRunning)setTimeout(startSession,150);else{recRunning=false;updateRecUI(false);}};
+  recognition.onend=()=>{
+    if(!userStopped&&recRunning){
+      // Avant de redémarrer, on met à jour preRecText avec ce qui est dans le champ
+      const ta=document.getElementById(activeField);
+      if(ta)preRecText=ta.value;
+      accumulated='';
+      setTimeout(startSession,150);
+    }else{recRunning=false;updateRecUI(false);}
+  };
   recognition.onerror=e=>{if(!userStopped&&recRunning&&(e.error==='no-speech'||e.error==='audio-capture'))setTimeout(startSession,200);else{recRunning=false;updateRecUI(false);}};
   try{recognition.start();}catch(e){setTimeout(startSession,300);}
 }
