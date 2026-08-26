@@ -988,36 +988,39 @@ function startSession(){
   recognition.interimResults=true;
   recognition.continuous=false;
   recognition.maxAlternatives=1;
-  // Snapshot du texte accumulé au début de cette session
-  const sessionBase=preRecText+(preRecText&&accumulated&&!preRecText.endsWith(' ')?' ':'')+accumulated;
   recognition.onresult=e=>{
-    let interim='';
-    let sessionFinal='';
+    // On utilise SEULEMENT les nouveaux résultats (depuis resultIndex)
+    // et on ne touche PAS aux résultats précédents
     for(let i=e.resultIndex;i<e.results.length;i++){
       const t=e.results[i][0].transcript;
-      if(e.results[i].isFinal){sessionFinal+=t+' ';}
-      else{interim=t;}
+      if(e.results[i].isFinal){
+        accumulated+=(accumulated&&!accumulated.endsWith(' ')?' ':'')+t.trim()+' ';
+      }
     }
-    if(sessionFinal){accumulated+=(accumulated&&!accumulated.endsWith(' ')?' ':'')+sessionFinal.trim()+' ';}
+    // Reconstruit le texte complet depuis preRecText + accumulated + interim courant
+    let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(!e.results[i].isFinal)interim=e.results[i][0].transcript;
+    }
     const ta=document.getElementById(activeField);
     if(ta){
-      const sep=preRecText&&!preRecText.endsWith(' ')&&accumulated?' ':'';
-      ta.value=preRecText+sep+accumulated+interim;
+      const sep=preRecText&&accumulated&&!preRecText.endsWith(' ')?' ':'';
+      ta.value=preRecText+(preRecText&&(accumulated||interim)?sep:'')+accumulated+interim;
       ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
     }
   };
   recognition.onend=()=>{
     if(!userStopped&&recRunning){
-      setTimeout(()=>{
-        if(!userStopped&&recRunning){
-          try{recognition.start();}catch(e){setTimeout(startSession,300);}
-        }
-      },150);
+      // Récupère ce qui est déjà écrit comme nouvelle base
+      const ta=document.getElementById(activeField);
+      if(ta)preRecText=ta.value;
+      accumulated=''; // Reset pour éviter les répétitions
+      setTimeout(startSession,200);
     }else{recRunning=false;updateRecUI(false);}
   };
   recognition.onerror=e=>{
     if(e.error==='not-allowed'){recRunning=false;updateRecUI(false);return;}
-    if(!userStopped&&recRunning){setTimeout(()=>{if(!userStopped&&recRunning)try{recognition.start();}catch(e2){setTimeout(startSession,300);}},300);}
+    if(!userStopped&&recRunning)setTimeout(startSession,300);
     else{recRunning=false;updateRecUI(false);}
   };
   try{recognition.start();}catch(e){setTimeout(startSession,300);}
