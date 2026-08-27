@@ -996,7 +996,7 @@ async function startNativeVoice(fid){
       if(result.speechRecognition!=='granted'){recRunning=false;updateRecUI(false);return;}
     }
     await SR.removeAllListeners();
-    await SR.start({language:lang,maxResults:1,partialResults:true,popup:false});
+    await SR.start({language:lang,maxResults:1,partialResults:true,popup:false,continuous:true});
     SR.addListener('partialResults',(data)=>{
       if(!recRunning)return;
       const ta=document.getElementById(activeField);
