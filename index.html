@@ -979,48 +979,40 @@ function startVoice(fid){
   activeField=fid;const ta=document.getElementById(fid);
   preRecText=ta?(ta.value||''):'';accumulated='';
   userStopped=false;recRunning=true;updateRecUI(true);
-  // Utilise notre plugin custom ContinuousSpeech si disponible
-  if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.ContinuousSpeech){
+  // Utilise le plugin Capgo Speech Recognition si disponible
+  if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.SpeechRecognition){
     startContinuousVoice(fid);
   } else {
     startSession();
   }
 }
 async function startContinuousVoice(fid){
-  const CS=window.Capacitor.Plugins.ContinuousSpeech;
+  const SR=window.Capacitor.Plugins.SpeechRecognition;
   const lang=state.lang==='en'?'en-US':state.lang==='es'?'es-ES':'fr-FR';
   try{
-    await CS.removeAllListeners();
-    // Écoute les résultats (partiels et finaux)
-    CS.addListener('result',(data)=>{
+    await SR.removeAllListeners();
+    // accumulatedText contient tout le texte dicté depuis le début de la
+    // session, géré nativement par le plugin à travers ses redémarrages internes.
+    SR.addListener('partialResults',(data)=>{
       if(!recRunning)return;
       const ta=document.getElementById(activeField);
       if(!ta)return;
-      if(data.isFinal){
-        // Résultat final — s'ajoute à preRecText
-        const t=data.text.trim();
-        if(t){
-          preRecText=preRecText+(preRecText&&!preRecText.endsWith(' ')?' ':'')+t+' ';
-          ta.value=preRecText;
-          ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
-        }
-      } else {
-        // Résultat partiel — affiché en temps réel
-        ta.value=preRecText+(preRecText&&data.text?' ':'')+data.text;
-        ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
-      }
+      const text=data.accumulatedText!==undefined?data.accumulatedText:((data.matches&&data.matches[0])||'');
+      ta.value=preRecText+(preRecText&&text?' ':'')+text;
+      ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
     });
-    // Lance la reconnaissance continue
-    await CS.start({language:lang});
+    // Lance la reconnaissance continue (continuousPTT garde la session active à travers les silences)
+    await SR.start({language:lang,partialResults:true,continuousPTT:true,allowForSilence:3000});
+    await SR.setPTTState({held:true});
   }catch(e){
     // Fallback Web Speech API
     startSession();
   }
 }
 async function stopNativeVoice(){
-  if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.ContinuousSpeech){
-    const CS=window.Capacitor.Plugins.ContinuousSpeech;
-    try{await CS.stop();CS.removeAllListeners();}catch(e){}
+  if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.SpeechRecognition){
+    const SR=window.Capacitor.Plugins.SpeechRecognition;
+    try{await SR.setPTTState({held:false});await SR.stop();SR.removeAllListeners();}catch(e){}
   }
 }
 function startSession(){
@@ -1067,7 +1059,7 @@ function startSession(){
 }
 function stopVoice(){
   userStopped=true;recRunning=false;
-  if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.ContinuousSpeech){
+  if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.SpeechRecognition){
     stopNativeVoice();
   } else {
     if(recognition)try{recognition.stop();}catch(e){}
