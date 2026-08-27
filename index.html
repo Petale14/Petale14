@@ -979,64 +979,48 @@ function startVoice(fid){
   activeField=fid;const ta=document.getElementById(fid);
   preRecText=ta?(ta.value||''):'';accumulated='';
   userStopped=false;recRunning=true;updateRecUI(true);
-  // Utilise le plugin natif si disponible (Capacitor Android)
-  if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.SpeechRecognition){
-    startNativeVoice(fid);
+  // Utilise notre plugin custom ContinuousSpeech si disponible
+  if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.ContinuousSpeech){
+    startContinuousVoice(fid);
   } else {
     startSession();
   }
 }
-async function startNativeVoice(fid){
-  const SR=window.Capacitor.Plugins.SpeechRecognition;
+async function startContinuousVoice(fid){
+  const CS=window.Capacitor.Plugins.ContinuousSpeech;
   const lang=state.lang==='en'?'en-US':state.lang==='es'?'es-ES':'fr-FR';
   try{
-    const {speechRecognition}=await SR.checkPermissions();
-    if(speechRecognition!=='granted'){
-      const result=await SR.requestPermissions();
-      if(result.speechRecognition!=='granted'){recRunning=false;updateRecUI(false);return;}
-    }
-    await SR.removeAllListeners();
-    await SR.start({language:lang,maxResults:1,partialResults:true,popup:false,continuous:true});
-    SR.addListener('partialResults',(data)=>{
+    await CS.removeAllListeners();
+    // Écoute les résultats (partiels et finaux)
+    CS.addListener('result',(data)=>{
       if(!recRunning)return;
       const ta=document.getElementById(activeField);
-      if(ta&&data.matches&&data.matches.length>0){
-        const text=data.matches[0];
-        ta.value=preRecText+(preRecText&&text?' ':'')+text;
+      if(!ta)return;
+      if(data.isFinal){
+        // Résultat final — s'ajoute à preRecText
+        const t=data.text.trim();
+        if(t){
+          preRecText=preRecText+(preRecText&&!preRecText.endsWith(' ')?' ':'')+t+' ';
+          ta.value=preRecText;
+          ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
+        }
+      } else {
+        // Résultat partiel — affiché en temps réel
+        ta.value=preRecText+(preRecText&&data.text?' ':'')+data.text;
         ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
       }
     });
-    SR.addListener('listeningState',(data)=>{
-      if(!recRunning)return;
-      if(data.status==='stopped'){
-        const ta=document.getElementById(activeField);
-        if(ta&&ta.value)preRecText=ta.value;
-        setTimeout(()=>{if(recRunning)startNativeVoice(activeField);},50);
-      }
-    });
+    // Lance la reconnaissance continue
+    await CS.start({language:lang});
   }catch(e){
-    if(recRunning){
-      const ta=document.getElementById(activeField);
-      if(ta&&ta.value)preRecText=ta.value;
-      setTimeout(()=>{if(recRunning)startNativeVoice(activeField);},200);
-    }
+    // Fallback Web Speech API
+    startSession();
   }
 }
 async function stopNativeVoice(){
-  if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.SpeechRecognition){
-    const SR=window.Capacitor.Plugins.SpeechRecognition;
-    try{
-      const result=await SR.stop();
-      if(result&&result.matches&&result.matches.length>0){
-        const ta=document.getElementById(activeField);
-        if(ta){
-          const text=result.matches[0];
-          ta.value=preRecText+(preRecText&&text?' ':'')+text;
-          ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
-        }
-      }
-      SR.removeAllListeners();
-    }catch(e){}
+  if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.ContinuousSpeech){
+    const CS=window.Capacitor.Plugins.ContinuousSpeech;
+    try{await CS.stop();CS.removeAllListeners();}catch(e){}
   }
 }
 function startSession(){
@@ -1083,7 +1067,7 @@ function startSession(){
 }
 function stopVoice(){
   userStopped=true;recRunning=false;
-  if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.SpeechRecognition){
+  if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.ContinuousSpeech){
     stopNativeVoice();
   } else {
     if(recognition)try{recognition.stop();}catch(e){}
