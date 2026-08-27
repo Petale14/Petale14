@@ -990,21 +990,13 @@ async function startNativeVoice(fid){
   const SR=window.Capacitor.Plugins.SpeechRecognition;
   const lang=state.lang==='en'?'en-US':state.lang==='es'?'es-ES':'fr-FR';
   try{
-    // Demande la permission
     const {speechRecognition}=await SR.checkPermissions();
     if(speechRecognition!=='granted'){
       const result=await SR.requestPermissions();
       if(result.speechRecognition!=='granted'){recRunning=false;updateRecUI(false);return;}
     }
-    // Lance la reconnaissance
-    await SR.start({
-      language:lang,
-      maxResults:1,
-      prompt:'Parle maintenant...',
-      partialResults:true,
-      popup:false
-    });
-    // Écoute les résultats partiels
+    await SR.removeAllListeners();
+    await SR.start({language:lang,maxResults:1,partialResults:true,popup:false});
     SR.addListener('partialResults',(data)=>{
       if(!recRunning)return;
       const ta=document.getElementById(activeField);
@@ -1014,22 +1006,20 @@ async function startNativeVoice(fid){
         ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
       }
     });
-    // Écoute la fin de session et redémarre automatiquement après pause
     SR.addListener('listeningState',(data)=>{
       if(!recRunning)return;
       if(data.status==='stopped'){
-        // Sauvegarde ce qui est dans le champ comme nouveau point de départ
         const ta=document.getElementById(activeField);
-        if(ta)preRecText=ta.value;
-        // Redémarre après une courte pause
-        setTimeout(()=>{
-          if(recRunning)startNativeVoice(activeField);
-        },300);
+        if(ta&&ta.value)preRecText=ta.value;
+        setTimeout(()=>{if(recRunning)startNativeVoice(activeField);},50);
       }
     });
   }catch(e){
-    // Fallback Web Speech API
-    startSession();
+    if(recRunning){
+      const ta=document.getElementById(activeField);
+      if(ta&&ta.value)preRecText=ta.value;
+      setTimeout(()=>{if(recRunning)startNativeVoice(activeField);},200);
+    }
   }
 }
 async function stopNativeVoice(){
