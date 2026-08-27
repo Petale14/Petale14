@@ -1014,6 +1014,19 @@ async function startNativeVoice(fid){
         ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';
       }
     });
+    // Écoute la fin de session et redémarre automatiquement après pause
+    SR.addListener('listeningState',(data)=>{
+      if(!recRunning)return;
+      if(data.status==='stopped'){
+        // Sauvegarde ce qui est dans le champ comme nouveau point de départ
+        const ta=document.getElementById(activeField);
+        if(ta)preRecText=ta.value;
+        // Redémarre après une courte pause
+        setTimeout(()=>{
+          if(recRunning)startNativeVoice(activeField);
+        },300);
+      }
+    });
   }catch(e){
     // Fallback Web Speech API
     startSession();
