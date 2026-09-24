@@ -9,7 +9,7 @@
 <title>Pétale — Ton journal vocal & créatif</title>
 <link rel="manifest" href="manifest.json">
 <script src="capacitor.js" onerror="console.log('Capacitor not available, using localStorage')"></script>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Dancing+Script:wght@400;600&family=Pacifico&family=Shadows+Into+Light&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Dancing+Script:wght@400;600&family=Pacifico&family=Shadows+Into+Light&family=Patrick+Hand&family=Creepster&family=Rubik+Wet+Paint&family=Nosifer&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
 :root{
@@ -613,6 +613,14 @@ const STICKER_DEFS = {
     {id:'pt4',emoji:'🤎',name:'Leopard',     theme:'terre',   src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-terre4.png'},
     {id:'pt5',emoji:'☕',name:'Cafe',        theme:'terre',   src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-terre5.png'},
     {id:'pt6',emoji:'🍂',name:'Automne',     theme:'terre',   src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Premium-terre6.png'},
+    {id:'hw1',emoji:'👻',name:'Fantôme',     theme:'halloween', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Halloween1.png'},
+    {id:'hw2',emoji:'🎃',name:'Citrouille',  theme:'halloween', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Halloween2.png'},
+    {id:'hw3',emoji:'🧙',name:'Sorcière',    theme:'halloween', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Halloween3.png'},
+    {id:'hw4',emoji:'🐱',name:'Chat',        theme:'halloween', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Halloween4.png'},
+    {id:'hw5',emoji:'🕯',name:'Bougie',      theme:'halloween', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Halloween5.png'},
+    {id:'hw6',emoji:'🕷',name:'Araignée',    theme:'halloween', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Halloween6.png'},
+    {id:'hw7',emoji:'🌙',name:'Lune',        theme:'halloween', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Halloween7.png'},
+    {id:'hw8',emoji:'⚡',name:'Éclair',      theme:'halloween', src:'https://raw.githubusercontent.com/Petale14/Petale14/main/stickers/Halloween8.png'},
   ]
 };
 
@@ -682,7 +690,16 @@ const THEMES={
     '--text':'#4A3228','--text2':'#6B4C3B','--text3':'#C4AD96',
     '--bg2':'#EDE0D0','--border':'#D4C0A8',
     '--grad':'linear-gradient(135deg,#6B4C3B,#B07850,#C27A52)',
-    garden:'linear-gradient(180deg,#F5EFE0 0%,#E8DCC8 30%,#EDE0D0 87%,#C4AD96 87%,#B07850 100%)'}
+    garden:'linear-gradient(180deg,#F5EFE0 0%,#E8DCC8 30%,#EDE0D0 87%,#C4AD96 87%,#B07850 100%)'},
+  halloween:{id:'halloween',name:'Halloween',emoji:'🎃',free:true,seasonal:true,seasonalEnd:'2024-11-15',
+    '--coral':'#FF6B00','--orange':'#FF8C00','--pink':'#C8A8E9','--violet':'#4B0082',
+    '--coral-l':'#FFE8D0','--orange-l':'#FFF0D8','--pink-l':'#EDE0F8','--violet-l':'#E8D8F5',
+    '--coral-d':'#2D6A2D','--orange-d':'#1A4A1A','--pink-d':'#3D1A7A','--violet-d':'#2A0052',
+    '--paper':'#C8A8E9','--line':'#9B70C8','--margin':'rgba(75,0,130,0.2)',
+    '--text':'#1A0A2E','--text2':'#6B3A9B','--text3':'#9B70C8',
+    '--bg2':'#F0EAF8','--border':'#B89AD6',
+    '--grad':'linear-gradient(135deg,#4B0082,#7B3FA0,#FF6B00)',
+    garden:'linear-gradient(180deg,#F0EAF8 0%,#C8A8E9 30%,#EDE0F8 87%,#9B70C8 87%,#4B0082 100%)'}
 };
 
 function applyTheme(id){
@@ -727,8 +744,11 @@ const TYPOS=[
   {id:'pacifico',f:"'Pacifico',cursive",sz:'17px',s:'Aujourd\'hui…'},
   {id:'shadows',f:"'Shadows Into Light',cursive",sz:'20px',s:'Aujourd\'hui…'},
   {id:'patrick',f:"'Patrick Hand',cursive",sz:'18px',s:'Aujourd\'hui…'},
+  {id:'creepster',f:"'Creepster',cursive",sz:'20px',s:'Aujourd\'hui…'},
+  {id:'rubikwet',f:"'Rubik Wet Paint',cursive",sz:'18px',s:'Aujourd\'hui…'},
+  {id:'nosifer',f:"'Nosifer',cursive",sz:'16px',s:'Aujourd\'hui…'},
 ];
-const COLORS_ALL=[{v:'#2C2010'},{v:'#1A237E'},{v:'#FF6B6B'},{v:'#FF8E53'},{v:'#FF6FAE'},{v:'#9B5DE5'},{v:'#2D6A4F'},{v:'#C62828'},{v:'#00695C'}];
+const COLORS_ALL=[{v:'#2C2010'},{v:'#1A237E'},{v:'#FF6B6B'},{v:'#FF8E53'},{v:'#FF6FAE'},{v:'#9B5DE5'},{v:'#2D6A4F'},{v:'#C62828'},{v:'#00695C'},{v:'#FF6B00'},{v:'#8B0000'}];
 
 // ═══════════════════════════════════════════════════════
 // TRANSLATIONS
@@ -747,7 +767,7 @@ const TR={
     settingsTitle:'Réglages',settingLang:'Langue',settingLangSub:'Français · English · Español',
     settingPDF:'Exporter en PDF',settingPDFSub:'Imprimer ou sauvegarder ton journal',
     settingRemind:'Rappel quotidien',settingRemindSub:'Être notifiée chaque jour pour écrire',
-    settingAbout:'À propos de Pétale',settingAboutSub:'Version 1.0.0.12 — Fait avec 🌸',
+    settingAbout:'À propos de Pétale',settingAboutSub:'Version 1.0.0.14 — Fait avec 🌸',
     histTitle:'Mes entrées',noEntries:'Aucune entrée pour ce journal.',
     previewClose:'Fermer l\'aperçu',
     arrange:'Déplacer',arrangeDone:'OK',arrangeHint:'Textarea désactivée — déplace librement.',
@@ -779,7 +799,7 @@ const TR={
     settingsTitle:'Settings',settingLang:'Language',settingLangSub:'Français · English · Español',
     settingPDF:'Export as PDF',settingPDFSub:'Print or save your journal',
     settingRemind:'Daily reminder',settingRemindSub:'Get notified every day to write',
-    settingAbout:'About Petal',settingAboutSub:'Version 1.0.0.12 — Made with 🌸',
+    settingAbout:'About Petal',settingAboutSub:'Version 1.0.0.14 — Made with 🌸',
     histTitle:'My entries',noEntries:'No entries for this journal.',
     previewClose:'Close preview',
     arrange:'Arrange',arrangeDone:'Done',arrangeHint:'Text disabled — move items freely.',
@@ -809,7 +829,7 @@ const TR={
     settingsTitle:'Ajustes',settingLang:'Idioma',settingLangSub:'Français · English · Español',
     settingPDF:'Exportar PDF',settingPDFSub:'Imprimir o guardar tu diario',
     settingRemind:'Recordatorio diario',settingRemindSub:'Recibe un aviso cada día para escribir',
-    settingAbout:'Acerca de Pétalo',settingAboutSub:'Versión 1.0.0.12 — Hecho con 🌸',
+    settingAbout:'Acerca de Pétalo',settingAboutSub:'Versión 1.0.0.14 — Hecho con 🌸',
     histTitle:'Mis entradas',noEntries:'Sin entradas para este diario.',
     previewClose:'Cerrar vista previa',
     arrange:'Mover',arrangeDone:'Listo',arrangeHint:'Texto desactivado — mueve libremente.',
@@ -1269,11 +1289,12 @@ function renderIntime(j,ek){
   // Stickers Premium : gratuits toujours + thème actif si premium
   const activeTheme=state.theme||'sunset';
   const themeStickers=STICKER_DEFS.premium.filter(s=>s.theme===activeTheme);
+  const isHalloweenTheme=activeTheme==='halloween';
   if(themeStickers.length===0){
     // Sunset Peps : pas de section premium
-  } else if(!!state.premium){
-    // Premium actif : afficher les stickers du thème
-    const thNames={prairie:'🌿 Prairie',minuit:'🌙 Minuit',rose:'🌸 Rose Poudre',terre:'🤎 Terre'};
+  } else if(!!state.premium||isHalloweenTheme){
+    // Premium actif OU thème Halloween (gratuit) : afficher les stickers du thème
+    const thNames={prairie:'🌿 Prairie',minuit:'🌙 Minuit',rose:'🌸 Rose Poudre',terre:'🤎 Terre',halloween:'🎃 Halloween'};
     const thLabel=document.createElement('div');
     thLabel.style.cssText='width:100%;font-size:10px;font-weight:600;color:var(--text3);margin:6px 0 2px;letter-spacing:0.05em;';
     thLabel.textContent=thNames[activeTheme]||'✨ Premium';srp.appendChild(thLabel);
@@ -1659,7 +1680,9 @@ function renderSettings(){
     const active=state.theme===th.id;
     const locked=!th.free&&!isPrem;
     const clickFn=locked?`showPremiumAlert()`:`applyTheme('${th.id}');renderSettings();`;
+    const seasonalBadge=th.seasonal?`<div style="position:absolute;top:-6px;right:-6px;background:#FF6B00;color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:8px;">🎃 Limité</div>`:'';
     return `<div onclick="${clickFn}" style="border-radius:12px;padding:10px;cursor:pointer;border:2px solid ${active?'var(--coral)':'var(--border)'};background:${active?'var(--coral-l)':'var(--paper)'};text-align:center;position:relative;${locked?'opacity:0.5;':''}">
+      ${seasonalBadge}
       <div style="font-size:24px;">${th.emoji}</div>
       <div style="font-size:12px;font-weight:600;color:var(--text);margin-top:4px;">${th.name}</div>
       ${active?`<div style="font-size:10px;color:var(--coral);font-weight:700;margin-top:2px;">✓ ${state.lang==='en'?'Active':state.lang==='es'?'Activo':'Actif'}</div>`:`<div style="font-size:10px;color:var(--text3);margin-top:2px;">${locked?'🔒 Premium':(state.lang==='en'?'Tap to choose':state.lang==='es'?'Pulsar para elegir':'Appuyer pour choisir')}</div>`}
@@ -2194,7 +2217,7 @@ function generatePDF(selectedJournals){
     .sort().reverse().slice(0,30);
   if(!allKeys.length){alert(state.lang==='en'?'No entries to export.':state.lang==='es'?'No hay entradas para exportar.':'Aucune entree a exporter.');return;}
   const win=window.open('','_blank');
-  const gFonts='https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Dancing+Script:wght@400;600&family=Pacifico&family=Shadows+Into+Light&family=Patrick+Hand&display=swap';
+  const gFonts='https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Dancing+Script:wght@400;600&family=Pacifico&family=Shadows+Into+Light&family=Patrick+Hand&family=Creepster&family=Rubik+Wet+Paint&family=Nosifer&display=swap';
   const entries=allKeys.map(k=>{
     const[jid,date]=k.split('__');
     const e=state.entries[k];
